@@ -2,14 +2,14 @@ MAP_WIDTH = 80
 MAP_HEIGHT = 21
 
 TILE_TYPES = {
-    # name => char, blocks_move, blocks_sight
-    "empty": (' ', True),
-    "floor": ('.', False),
-    "hwall": ('-', True),
-    "vwall": ('|', True),
-    "door_closed": ('+', True),
-    "door_open": ('/', False),
-    "tunnel": ('#', False)
+    # name => char, blocks_move
+    "empty":        (' ', True),
+    "floor":        ('.', False),
+    "hwall":        ('-', True),
+    "vwall":        ('|', True),
+    "door_closed":  ('+', True),
+    "door_open":    ('/', False),
+    "tunnel":       ('#', False)
 }
 
 
@@ -40,14 +40,8 @@ class GameObject():
 class Tile():
     def __init__(self, type=None):
         if type == None:
-            self.type = None
-            self.char = ' '
-            self.blocks_move = True
-            self.blocks_sight = False
-            self.visible = True
-        else:
-            self.set_type(type)
-
+            type = "empty"
+        self.set_type(type)
 
     def set_type(self, t):
         self.type = t

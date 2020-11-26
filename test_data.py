@@ -33,6 +33,7 @@ def make_test_floor2(floor, player):
     floor.make_hallway(18, 7, 25, 7)
     floor.make_hallway(25, 7, 25, 11)
     floor.make_hallway(25, 11, 31, 11)
+
     player.set_pos(12, 7)
 
 
