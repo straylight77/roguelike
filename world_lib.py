@@ -72,11 +72,10 @@ class MessageQueue():
 
     def add(self, m):
         self.messages.append(m)
+        self.history.append(m)
 
     def clear(self):
-        self.history.append( self.messages )
         self.messages.clear()
-
 
     def get_string(self, wrap_width=80):
         str = ""

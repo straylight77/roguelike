@@ -10,7 +10,6 @@ done = False
 msg = MessageQueue()
 
 
-
 #--------------------------------- funcs ---------------------------------
 def init():
     curses.curs_set(0)  # make cursor invisible
@@ -35,7 +34,7 @@ def draw_messages(screen, mq):
     screen.addstr(0, 0, mq.get_string())
     mq.clear()
 
-def handle_keys(c):
+def handle_keys(c, screen):
     if c in (ord('q'), 'q'):
         return True
 
@@ -63,6 +62,16 @@ def handle_keys(c):
         else:
             player.move(1, 0)
 
+    elif c in (ord('M'), 'M'):
+        y = 0
+        for m in msg.history[-20:]:
+            screen.addstr(y, 0, m)
+            y += 1
+
+        screen.addstr(y, 0, "-press any key-")
+        screen.getch()
+
+
     else:
         msg.add("Unknown command.  Type 'q' to exit.")
 
@@ -87,7 +96,7 @@ def main(stdscr):
 
         stdscr.refresh()
         cmd = stdscr.getch()
-        if ( handle_keys(cmd) ):
+        if ( handle_keys(cmd, stdscr) ):
             break
 
 
