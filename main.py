@@ -34,42 +34,44 @@ def draw_messages(screen, mq):
     screen.addstr(0, 0, mq.get_string())
     mq.clear()
 
+def do_move(obj, dx, dy):
+    t1 = floor.tiles[obj.x][obj.y]
+    t2 = floor.tiles[ obj.x+dx ][ obj.y+dy ]
+
+    if t2.type == "door_closed":
+        msg.add("You open the door.")
+        t2.set_type("door_open")
+    elif t2.blocks_move:
+        msg.add("Your way in that direction is blocked.")
+    else:
+        obj.move(dx, dy)
+
+
 def handle_keys(c, screen):
     if c in (ord('q'), 'q'):
         return True
 
     elif c == curses.KEY_UP:
-        if floor.tiles[player.x][player.y-1].blocks_move:
-            msg.add("Your way to the north is blocked!")
-        else:
-            player.move(0, -1)
+        do_move(player, 0, -1)
 
     elif c == curses.KEY_DOWN:
-        if floor.tiles[player.x][player.y+1].blocks_move:
-            msg.add("Your way to the south is blocked!")
-        else:
-            player.move(0, 1)
+        do_move(player, 0, 1)
 
     elif c == curses.KEY_LEFT:
-        if floor.tiles[player.x-1][player.y].blocks_move:
-            msg.add("Your way to the west is blocked!")
-        else:
-            player.move(-1, 0)
+        do_move(player, -1, 0)
 
     elif c == curses.KEY_RIGHT:
-        if floor.tiles[player.x+1][player.y].blocks_move:
-            msg.add("Your way to the east is blocked!")
-        else:
-            player.move(1, 0)
+        do_move(player, 1, 0)
 
     elif c in (ord('M'), 'M'):
-        y = 0
         screen.move(0, 0)
         screen.clrtoeol()
+        screen.addstr(0, 0, "LAST 20 MESSAGES:")
+        y = 1
         for m in msg.history[-20:]:
             screen.addstr(y, 0, m)
             y += 1
-        screen.addstr(y, 0, "-press any key-")
+        screen.addstr(y, 0, "-done-")
         screen.refresh()
         screen.getch()
 
