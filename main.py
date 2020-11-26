@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import curses
-from world_lib import *  # repalce with explicit list
+from world import *  # repalce with explicit list
 import test_data
 
 #-------------------------------- globals -------------------------------
