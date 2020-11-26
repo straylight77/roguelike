@@ -75,9 +75,16 @@ class Floor():
             self.tiles[start_x+x][start_y+dy-1].set_type("hwall")
 
     def make_hallway(self, start_x, start_y, end_x, end_y):
+        # TODO: this only works when drawing from top-left to bottom-right.
+        # It's also inconsistent, should have length+dir instead of second
+        # coord.
         for x in range(start_x, end_x+1):
             for y in range(start_y, end_y+1):
-                self.tiles[x][y].set_type("tunnel")
+                if self.tiles[x][y].type in ("hwall", "vwall"):
+                    self.tiles[x][y].set_type("floor")
+                else:
+                    self.tiles[x][y].set_type("tunnel")
+
 
 #-------------------------------------------------------------------------
 class MessageQueue():

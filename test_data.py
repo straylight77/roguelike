@@ -26,13 +26,19 @@ def make_test_floor(floor, player):
 def make_test_floor2(floor, player):
     #make a simple dungeon map for testing
     floor.make_room(10, 5, 8, 5)
-    floor.tiles[17][7].set_type("door_closed")
     floor.make_room(32, 8, 16, 6)
+
+    floor.make_hallway(17, 7, 25, 7)
+    floor.make_hallway(25, 7, 25, 11)
+    floor.make_hallway(25, 11, 32, 11)
+
+    floor.tiles[17][7].set_type("door_closed")
     floor.tiles[32][11].set_type("door_closed")
 
-    floor.make_hallway(18, 7, 25, 7)
-    floor.make_hallway(25, 7, 25, 11)
-    floor.make_hallway(25, 11, 31, 11)
+    floor.make_room(5, 13, 12, 5)
+    floor.make_hallway(13, 9, 13, 13)
+    floor.make_hallway(16, 15, 43, 15)
+    floor.make_hallway(43, 13, 43, 15)
 
     player.set_pos(12, 7)
 
