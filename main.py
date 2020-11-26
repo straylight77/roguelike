@@ -4,7 +4,7 @@ from world import *  # repalce with explicit list
 import test_data
 
 #-------------------------------- globals -------------------------------
-player = Object('@')
+player = GameObject('@')
 floor = Floor()
 done = False
 msg = MessageQueue()

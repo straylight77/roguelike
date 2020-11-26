@@ -2,7 +2,7 @@ MAP_WIDTH = 80
 MAP_HEIGHT = 21
 
 #-------------------------------------------------------------------------
-class Object():
+class GameObject():
 
     def __init__(self, char, x=0, y=0, color=0):
         self.char = char
@@ -12,7 +12,6 @@ class Object():
     def set_pos(self, x, y):
         self.x = x
         self.y = y
-
 
     def move(self, dx, dy):
         self.x += dx
