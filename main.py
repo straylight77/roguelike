@@ -64,11 +64,13 @@ def handle_keys(c, screen):
 
     elif c in (ord('M'), 'M'):
         y = 0
+        screen.move(0, 0)
+        screen.clrtoeol()
         for m in msg.history[-20:]:
             screen.addstr(y, 0, m)
             y += 1
-
         screen.addstr(y, 0, "-press any key-")
+        screen.refresh()
         screen.getch()
 
 
