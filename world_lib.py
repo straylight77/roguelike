@@ -1,6 +1,7 @@
 MAP_WIDTH = 80
 MAP_HEIGHT = 21
 
+#-------------------------------------------------------------------------
 class Object():
 
     def __init__(self, char, x=0, y=0, color=0):
@@ -18,11 +19,12 @@ class Object():
         self.y += dy
 
 
+#-------------------------------------------------------------------------
 class Tile():
     def __init__(self):
         self.type = None
         self.char = ' '
-        self.blocks_move = False
+        self.blocks_move = True
         self.blocks_sight = False
         self.visible = True
 
@@ -33,6 +35,7 @@ class Tile():
 
 
 
+#-------------------------------------------------------------------------
 class Floor():
     def __init__(self):
         self.tiles = [
@@ -56,8 +59,12 @@ class Floor():
             self.tiles[start_x+x][start_y].set_type('-', True, True)
             self.tiles[start_x+x][start_y+dy-1].set_type('-', True, True)
 
+    def make_hallway(self, start_x, start_y, end_x, end_y):
+        for x in range(start_x, end_x+1):
+            for y in range(start_y, end_y+1):
+                self.tiles[x][y].set_type('#', False, False)
 
-
+#-------------------------------------------------------------------------
 class MessageQueue():
     def __init__(self):
         self.messages = [ ]
