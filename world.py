@@ -30,9 +30,32 @@ class GameObject():
         self.x += dx
         self.y += dy
 
-    def move_vector(self, v):
-        self.x += v[0]
-        self.y += v[1]
+#-------------------------------------------------------------------------
+class Creature(GameObject):
+
+    def __init__(self, char):
+        self.hp = { "max": 10, "current": 10 }
+        self.mp = { "max": 5, "current": 5 }
+        super().__init__(char)
+
+
+#-------------------------------------------------------------------------
+class Player(Creature):
+
+    def __init__(self):
+        super().__init__('@')
+        self.moves = 0
+
+
+#-------------------------------------------------------------------------
+class Monster(Creature):
+
+    def __init__(self, name, char, x, y):
+        super().__init__(char)
+        self.name = name
+        self.set_pos(x, y)
+
+
 
 
 
