@@ -1,3 +1,5 @@
+import textwrap
+
 MAP_WIDTH = 80
 MAP_HEIGHT = 21
 
@@ -112,9 +114,11 @@ class Floor():
 
 #-------------------------------------------------------------------------
 class MessageQueue():
-    def __init__(self):
+    def __init__(self, wrap_width=75):
         self.messages = [ ]
         self.history = [ ]
+        self.wrap_width = wrap_width
+        self.wrap = textwrap.TextWrapper(wrap_width)
 
     def add(self, m):
         self.messages.append(m)
@@ -123,11 +127,11 @@ class MessageQueue():
     def clear(self):
         self.messages.clear()
 
-    def get_string(self, wrap_width=80):
+    def get_string(self):
         str = ""
         for s in self.messages:
             str += s + " "
-        return str
+        return self.wrap.fill(str)
 
 
 

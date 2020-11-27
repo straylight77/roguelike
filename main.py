@@ -16,9 +16,9 @@ def init():
     curses.curs_set(0)  # make cursor invisible
 
 def draw_footer(screen, p):
-    #screen.addstr(22, 0, "MAP: ({}, {})".format(p.x, p.y))
+    screen.addstr(22, 60, "coord: ({}, {})".format(p.x, p.y))
     #screen.addstr(23, 0, "SCR: ({}, {})".format(p.y+1, p.x))
-    #screen.addstr(22, 20, "moves: {}".format(p.moves))
+    screen.addstr(23, 60, "moves: {}".format(p.moves))
 
     screen.addstr(22, 0, "HP: {} / {}".format(p.hp["current"], p.hp["max"]))
     screen.addstr(23, 0, "MP: {} / {}".format(p.mp["current"], p.mp["max"]))
@@ -43,7 +43,8 @@ def draw_all_objects(screen, objects):
         #screen.addch(obj.y+1, obj.x, obj.char)
 
 def draw_messages(screen, mq):
-    screen.addstr(0, 0, mq.get_string())
+    msg_str = mq.get_string()
+    screen.addstr(0, 0, msg_str)
     mq.clear()
 
 
