@@ -48,6 +48,9 @@ class Player(Creature):
     def __init__(self):
         super().__init__('@')
         self.moves = 0
+        self.gold = 0
+        self.xp = 0
+        self.level = 1
 
 
 #-------------------------------------------------------------------------

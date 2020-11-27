@@ -16,16 +16,25 @@ def init():
     curses.curs_set(0)  # make cursor invisible
 
 def draw_footer(screen, p):
-    screen.addstr(22, 60, "coord: ({}, {})".format(p.x, p.y))
-    #screen.addstr(23, 0, "SCR: ({}, {})".format(p.y+1, p.x))
-    screen.addstr(23, 60, "moves: {}".format(p.moves))
 
-    screen.addstr(22, 0, "HP: {} / {}".format(p.hp["current"], p.hp["max"]))
-    screen.addstr(23, 0, "MP: {} / {}".format(p.mp["current"], p.mp["max"]))
+    screen.addstr(22, 0, "HP:{}({})".format(p.hp["current"], p.hp["max"]))
+    screen.addstr(23, 0, "MP:{}({})".format(p.mp["current"], p.mp["max"]))
 
+    screen.addstr(22, 12, "St:18 Dx:12  Atk:{:+}".format(p.prof))
+    screen.addstr(23, 12, "Co:14 Mg:8   Def:{}".format(p.ac))
 
-    screen.vline(0, 80, '|', 25)
-    screen.hline(24, 0, '-', 81)
+    screen.addstr(22, 34, "Dmg:3-11(s)")
+    #screen.addstr(23, 34, "Halu Conf Bles")
+
+    screen.addstr(22, 58, "Au:{}".format(p.xp))
+    screen.addstr(23, 58, "XP:{}/{}".format(p.level, p.xp))
+
+    screen.addstr(22, 73, "D:1")
+    screen.addstr(23, 73, "T:{}".format(p.moves))
+    #screen.addstr(21, 73, "({:2n},{:2n})".format(p.x, p.y))
+
+    #screen.vline(0, 80, '|', 24)
+    #screen.hline(24, 0, '-', 80)
 
 def draw_dungeon(screen, m):
     # top line of the screen is the message line, so y+1
