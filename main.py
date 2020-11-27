@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import curses
+import random
 from world import *  # repalce with explicit list
 import test_data
 
@@ -15,11 +16,16 @@ def init():
     curses.curs_set(0)  # make cursor invisible
 
 def draw_footer(screen, p):
-    screen.addstr(22, 0, "MAP: ({}, {})".format(p.x, p.y))
-    screen.addstr(23, 0, "SCR: ({}, {})".format(p.y+1, p.x))
-    screen.addstr(22, 20, "moves: {}".format(p.moves))
-    #screen.vline(0, 80, '|', 25)
-    #screen.hline(24, 0, '-', 81)
+    #screen.addstr(22, 0, "MAP: ({}, {})".format(p.x, p.y))
+    #screen.addstr(23, 0, "SCR: ({}, {})".format(p.y+1, p.x))
+    #screen.addstr(22, 20, "moves: {}".format(p.moves))
+
+    screen.addstr(22, 0, "HP: {} / {}".format(p.hp["current"], p.hp["max"]))
+    screen.addstr(23, 0, "MP: {} / {}".format(p.mp["current"], p.mp["max"]))
+
+
+    screen.vline(0, 80, '|', 25)
+    screen.hline(24, 0, '-', 81)
 
 def draw_dungeon(screen, m):
     # top line of the screen is the message line, so y+1
@@ -41,6 +47,38 @@ def draw_messages(screen, mq):
     mq.clear()
 
 
+def handle_player_attack(defender):
+    attack_roll = random.randint(1, 20)
+
+    hit = False
+    if attack_roll == 20:
+        msg.add("Critical hit!")
+        hit = True
+        damage = 6
+    elif attack_roll == 1:
+        msg.add("Critical miss!")
+        hit = False
+    elif (attack_roll + player.prof) >= defender.ac:
+        hit = True
+        damage = 3
+    else:
+        msg.add("You miss the {} (roll={}).".format(defender.name, attack_roll))
+
+    if hit:
+        msg.add("You hit the {} (roll={}, dmg={}).".format(defender.name,
+                                                           attack_roll,
+                                                           damage)
+               )
+        defender.hp["current"] -= damage
+
+    if defender.hp["current"] <= 0:
+        msg.add("You have defeated the {}!".format(defender.name))
+        monsters.remove(defender)
+
+
+
+
+
 def do_move(obj, dx, dy):
     t2 = floor.tiles[ obj.x+dx ][ obj.y+dy ]
 
@@ -50,7 +88,8 @@ def do_move(obj, dx, dy):
             m2 = m
 
     if m2 is not None:
-        msg.add("There's a {} there.".format(m2.name))
+        #msg.add("There's a {} there.".format(m2.name))
+        handle_player_attack(m2)
 
     elif t2.type == "door_closed":
         msg.add("You open the door.")
@@ -125,6 +164,7 @@ def main(stdscr):
             break
 
         # move monsters
+
         # other updates
         player.moves += 1
 

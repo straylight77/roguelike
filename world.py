@@ -36,8 +36,9 @@ class Creature(GameObject):
     def __init__(self, char):
         self.hp = { "max": 10, "current": 10 }
         self.mp = { "max": 5, "current": 5 }
+        self.ac = 10
+        self.prof = 2
         super().__init__(char)
-
 
 #-------------------------------------------------------------------------
 class Player(Creature):
