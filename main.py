@@ -113,8 +113,12 @@ def do_move(obj, dx, dy):
 
 
 def handle_keys(c, screen):
+    global done
+    advance_time = True
+
     if c in (ord('q'), 'q'):
-        return True
+        done = True
+        advance_time = False
 
     elif c == curses.KEY_UP:
         do_move(player, 0, -1)
@@ -129,6 +133,7 @@ def handle_keys(c, screen):
         do_move(player, 1, 0)
 
     elif c in (ord('M'), 'M'):
+        advance_time = False
         screen.move(0, 0)
         screen.clrtoeol()
         screen.addstr(0, 0, "LAST 20 MESSAGES:")
@@ -140,11 +145,11 @@ def handle_keys(c, screen):
         screen.refresh()
         screen.getch()
 
-
     else:
+        advance_time = False
         msg.add("Unknown command.  Type 'q' to exit.")
 
-    return False
+    return advance_time
 
 
 
@@ -158,7 +163,7 @@ def main(stdscr):
 
     msg.add("Welcome! Press 'q' to exit.")
 
-    while True:
+    while not done:
 
         stdscr.clear()
 
@@ -171,12 +176,11 @@ def main(stdscr):
         stdscr.refresh()
         cmd = stdscr.getch()
         if ( handle_keys(cmd, stdscr) ):
-            break
+            player.moves += 1
 
         # move monsters
 
         # other updates
-        player.moves += 1
 
 
 
