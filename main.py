@@ -21,7 +21,7 @@ def draw_footer(screen, p):
     screen.addstr(23, 0, "MP:{}({})".format(p.mp["current"], p.mp["max"]))
 
     screen.addstr(22, 12, "St:18 Dx:12  Atk:{:+}".format(p.prof))
-    screen.addstr(23, 12, "Co:14 Mg:8   Def:{}".format(p.ac))
+    screen.addstr(23, 12, "Co:14 Mi:8   Def:{}".format(p.ac))
 
     screen.addstr(22, 34, "Dmg:3-11(s)")
     #screen.addstr(23, 34, "Halu Conf Bles")
@@ -31,7 +31,7 @@ def draw_footer(screen, p):
 
     screen.addstr(22, 73, "D:1")
     screen.addstr(23, 73, "T:{}".format(p.moves))
-    #screen.addstr(21, 73, "({:2n},{:2n})".format(p.x, p.y))
+    screen.addstr(21, 73, "({:2n},{:2n})".format(p.x, p.y))
 
     #screen.vline(0, 80, '|', 24)
     #screen.hline(24, 0, '-', 80)
@@ -57,36 +57,50 @@ def draw_messages(screen, mq):
     mq.clear()
 
 
-def handle_player_attack(defender):
+def handle_combat(attacker, defender):
     attack_roll = random.randint(1, 20)
+    damage = 3
 
+    #"You attack the <thing> and (crtically) hit/miss."
+    #"The <thing> attacks you and (crtically) hits/misses."
+
+    # initial strings for 1st person or 2nd
+    crit_str = ""
+    if attacker.name == "you":
+        attack_str = "You attack the {}".format(defender.name)
+        hit_str = "hit!"
+        miss_str = "miss."
+    else:
+        attack_str = "The {} attacks you".format(attacker.name)
+        hit_str = "hits!"
+        miss_str = "misses."
+
+    # check if the attack hits and if it's a crit
     hit = False
     if attack_roll == 20:
-        msg.add("Critical hit!")
+        crit_str = "crtically "
         hit = True
-        damage = 6
+        damage *= 2
     elif attack_roll == 1:
-        msg.add("Critical miss!")
+        crit_str = "crtically "
         hit = False
-    elif (attack_roll + player.prof) >= defender.ac:
+    elif (attack_roll + attacker.prof) >= defender.ac:
         hit = True
-        damage = 3
-    else:
-        msg.add("You miss the {} (roll={}).".format(defender.name, attack_roll))
 
+    # apply damage and finally add a message describing the outcome
     if hit:
-        msg.add("You hit the {} (roll={}, dmg={}).".format(defender.name,
-                                                           attack_roll,
-                                                           damage)
-               )
+        debug_str = " [roll={}, dmg={}]".format(attack_roll, damage)
+        msg.add("{}{} and {}{}".format(attack_str, debug_str, crit_str, hit_str))
         defender.hp["current"] -= damage
+    else:
+        debug_str = " [roll={}]".format(attack_roll)
+        msg.add("{}{} and {}{}".format(attack_str, debug_str, crit_str, miss_str))
 
-    if defender.hp["current"] <= 0:
+    # check if player is attacker and if the monster is killed
+    if attacker.name == "you" and defender.hp["current"] <= 0:
         msg.add("You have defeated the {}!".format(defender.name))
+        player.xp += 50
         monsters.remove(defender)
-
-
-
 
 
 def do_move(obj, dx, dy):
@@ -98,8 +112,7 @@ def do_move(obj, dx, dy):
             m2 = m
 
     if m2 is not None:
-        #msg.add("There's a {} there.".format(m2.name))
-        handle_player_attack(m2)
+        handle_combat(player, m2)
 
     elif t2.type == "door_closed":
         msg.add("You open the door.")
@@ -160,11 +173,12 @@ def handle_keys(c, screen):
 
 #--------------------------------- main() ---------------------------------
 def main(stdscr):
+    global done
     init()
     test_data.make_test_floor2(floor, player)
 
-    monsters.append( Monster("skeleton", 'k', 15, 8) )
-
+    monsters.append( Monster("rat", 15, 8) )
+    monsters.append( Monster("skeleton", 43, 10) )
 
     msg.add("Welcome! Press 'q' to exit.")
 
@@ -184,8 +198,21 @@ def main(stdscr):
             player.moves += 1
 
         # move monsters
+        #for m in monsters:
+        #    handle_combat(m, player)
 
         # other updates
+
+        # check for player death
+        if player.hp["current"] <= 0:
+            advance_time = False
+            stdscr.move(0, 0)
+            stdscr.clrtoeol()
+            stdscr.addstr(0, 0, "You have died.  Game over! (press a key)")
+            stdscr.refresh()
+            stdscr.getch()
+            done = True
+
 
 
 

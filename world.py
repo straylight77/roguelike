@@ -14,6 +14,11 @@ TILE_TYPES = {
     "tunnel":       ('#', False)
 }
 
+MONSTERS = {
+    # name => char, hp, mp, ac, prof
+    "skeleton": ('k', 4, 0, 12, 2),
+    "rat":      ('r', 1, 0, 11, 2),
+}
 
 
 #-------------------------------------------------------------------------
@@ -35,18 +40,19 @@ class GameObject():
 #-------------------------------------------------------------------------
 class Creature(GameObject):
 
-    def __init__(self, char):
-        self.hp = { "max": 10, "current": 10 }
-        self.mp = { "max": 5, "current": 5 }
-        self.ac = 10
-        self.prof = 2
+    def __init__(self, char, hp, mp, ac, prof):
+        self.hp = { "max": hp, "current": hp }
+        self.mp = { "max": mp, "current": mp }
+        self.ac = ac
+        self.prof = prof
         super().__init__(char)
 
 #-------------------------------------------------------------------------
 class Player(Creature):
 
     def __init__(self):
-        super().__init__('@')
+        super().__init__('@', 10, 5, 15, 2)
+        self.name = "you"
         self.moves = 0
         self.gold = 0
         self.xp = 0
@@ -56,12 +62,11 @@ class Player(Creature):
 #-------------------------------------------------------------------------
 class Monster(Creature):
 
-    def __init__(self, name, char, x, y):
-        super().__init__(char)
+    def __init__(self, name, x, y):
+        m = MONSTERS[name]
         self.name = name
+        super().__init__(m[0], m[1], m[2], m[3], m[4])
         self.set_pos(x, y)
-
-
 
 
 
