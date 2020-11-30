@@ -116,23 +116,28 @@ def handle_keys(c, screen):
     global done
     advance_time = True
 
-    if c in (ord('q'), 'q'):
+    if c == ord('q'):
         done = True
         advance_time = False
 
-    elif c == curses.KEY_UP:
+    elif c in (ord('k'), curses.KEY_UP):
         do_move(player, 0, -1)
 
-    elif c == curses.KEY_DOWN:
+    elif c in (ord('j'), curses.KEY_DOWN):
         do_move(player, 0, 1)
 
-    elif c == curses.KEY_LEFT:
+    elif c in (ord('h'), curses.KEY_LEFT):
         do_move(player, -1, 0)
 
-    elif c == curses.KEY_RIGHT:
+    elif c in (ord('l'), curses.KEY_RIGHT):
         do_move(player, 1, 0)
 
-    elif c in (ord('M'), 'M'):
+    elif c == ord('y'): do_move(player, -1, -1)
+    elif c == ord('u'): do_move(player, 1, -1)
+    elif c == ord('b'): do_move(player, -1, 1)
+    elif c == ord('n'): do_move(player, 1, 1)
+
+    elif c == ord('M'):
         advance_time = False
         screen.move(0, 0)
         screen.clrtoeol()
@@ -141,7 +146,7 @@ def handle_keys(c, screen):
         for m in msg.history[-20:]:
             screen.addstr(y, 0, m)
             y += 1
-        screen.addstr(y, 0, "-done-")
+        screen.addstr(y, 0, "(done)")
         screen.refresh()
         screen.getch()
 
