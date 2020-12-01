@@ -1,5 +1,4 @@
 import textwrap
-import math
 
 MAP_WIDTH = 80
 MAP_HEIGHT = 21
@@ -11,7 +10,7 @@ TILE_TYPES = {
     "hwall":        ('-', True),
     "vwall":        ('|', True),
     "door_closed":  ('+', True),
-    "door_open":    ('/', False),
+    "door_open":    ('`', False),
     "tunnel":       ('#', False)
 }
 
@@ -41,7 +40,7 @@ class GameObject():
     def distance_from(self, dest_x, dest_y):
         dx = dest_x - self.x
         dy = dest_y - self.y
-        distance = math.sqrt( dx**2 + dy**2 )
+        distance = ( dx**2 + dy**2 ) ** 0.5
         return distance
 
     def direction_to(self, dest_x, dest_y):
@@ -60,11 +59,17 @@ class GameObject():
 class Creature(GameObject):
 
     def __init__(self, char, hp, mp, ac, prof):
-        self.hp = { "max": hp, "current": hp }
-        self.mp = { "max": mp, "current": mp }
+        self.hp = hp
+        self.max_hp = hp
+        self.mp = mp
+        self.max_mp = mp
         self.ac = ac
         self.prof = prof
         super().__init__(char)
+
+    def __str__(self):
+        return self.name
+
 
 #-------------------------------------------------------------------------
 class Player(Creature):
@@ -76,6 +81,7 @@ class Player(Creature):
         self.gold = 0
         self.xp = 0
         self.level = 1
+        self.depth = 1
 
 
 #-------------------------------------------------------------------------
@@ -86,7 +92,6 @@ class Monster(Creature):
         self.name = name
         super().__init__(m[0], m[1], m[2], m[3], m[4])
         self.set_pos(x, y)
-
 
 
 #-------------------------------------------------------------------------
@@ -101,7 +106,8 @@ class Tile():
         self.char = TILE_TYPES[t][0]
         self.blocks_move = TILE_TYPES[t][1]
 
-
+    def __str__(self):
+        return self.name
 
 #-------------------------------------------------------------------------
 class Floor():
@@ -127,7 +133,7 @@ class Floor():
             self.tiles[start_x+x][start_y].set_type("hwall")
             self.tiles[start_x+x][start_y+dy-1].set_type("hwall")
 
-    def make_hallway(self, start_x, start_y, end_x, end_y):
+    def make_tunnel(self, start_x, start_y, end_x, end_y):
         # TODO: this only works when drawing from top-left to bottom-right.
         # It's also inconsistent, should have length+dir instead of second
         # coord.
@@ -141,7 +147,7 @@ class Floor():
 
 #-------------------------------------------------------------------------
 class MessageQueue():
-    def __init__(self, wrap_width=75):
+    def __init__(self, wrap_width=80):
         self.messages = [ ]
         self.history = [ ]
         self.wrap_width = wrap_width
@@ -160,6 +166,14 @@ class MessageQueue():
             str += s + " "
         return self.wrap.fill(str)
 
+    def __len__(self):
+        return len(self.messages)
+
+    def __str__(self):
+        return self.get_string()
+
+    def __iadd__(self, m):
+        self.add(m)
 
 
 

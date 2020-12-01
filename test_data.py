@@ -5,7 +5,7 @@ def make_test_floor(floor, player):
     floor.make_room(10, 5, 8, 5)
     floor.make_room(32, 8, 16, 6)
     floor.make_room(18, 6, 7, 3)
-    floor.tiles[17][7].set_type("door_open")
+    floor.tiles[17][7].set_type("door_closed")
     floor.tiles[18][7].set_type("floor")
 
     floor.make_room(22, 8, 3, 5)
@@ -28,17 +28,17 @@ def make_test_floor2(floor, player):
     floor.make_room(10, 5, 8, 5)
     floor.make_room(32, 8, 16, 6)
 
-    floor.make_hallway(17, 7, 25, 7)
-    floor.make_hallway(25, 7, 25, 11)
-    floor.make_hallway(25, 11, 32, 11)
+    floor.make_tunnel(17, 7, 25, 7)
+    floor.make_tunnel(25, 7, 25, 11)
+    floor.make_tunnel(25, 11, 32, 11)
 
     floor.tiles[17][7].set_type("door_closed")
     floor.tiles[32][11].set_type("door_closed")
 
     floor.make_room(5, 13, 12, 5)
-    floor.make_hallway(13, 9, 13, 13)
-    floor.make_hallway(16, 15, 43, 15)
-    floor.make_hallway(43, 13, 43, 15)
+    floor.make_tunnel(13, 9, 13, 13)
+    floor.make_tunnel(16, 15, 43, 15)
+    floor.make_tunnel(43, 13, 43, 15)
 
     player.set_pos(12, 7)
 
