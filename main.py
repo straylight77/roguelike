@@ -125,6 +125,24 @@ def do_move(obj, dx, dy):
         obj.move(dx, dy)
 
 
+def do_monster_turn(obj):
+    dist = obj.distance_from(player.x, player.y)
+    if dist > 5:
+        return
+
+    d = obj.direction_to(player.x, player.y)
+    t2 = floor.tiles[ obj.x+d[0] ][ obj.y+d[1] ]
+    m2 = None
+    for m in monsters:
+        if m.x == obj.x+d[0] and m.y == obj.y+d[1]:
+            m2 = m
+
+    if player.x == obj.x+d[0] and player.y == obj.y+d[1]:
+        handle_combat(obj, player)
+    elif not t2.blocks_move and m2 == None:
+        obj.move(d[0], d[1])
+
+
 def handle_keys(c, screen):
     global done
     advance_time = True
@@ -149,6 +167,7 @@ def handle_keys(c, screen):
     elif c == ord('u'): do_move(player, 1, -1)
     elif c == ord('b'): do_move(player, -1, 1)
     elif c == ord('n'): do_move(player, 1, 1)
+    elif c == ord('.'): msg.add("You rest for a moment.")
 
     elif c == ord('M'):
         advance_time = False
@@ -198,8 +217,8 @@ def main(stdscr):
             player.moves += 1
 
         # move monsters
-        #for m in monsters:
-        #    handle_combat(m, player)
+        for m in monsters:
+            do_monster_turn(m)
 
         # other updates
 

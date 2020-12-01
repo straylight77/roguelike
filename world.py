@@ -1,4 +1,5 @@
 import textwrap
+import math
 
 MAP_WIDTH = 80
 MAP_HEIGHT = 21
@@ -36,6 +37,24 @@ class GameObject():
     def move(self, dx, dy):
         self.x += dx
         self.y += dy
+
+    def distance_from(self, dest_x, dest_y):
+        dx = dest_x - self.x
+        dy = dest_y - self.y
+        distance = math.sqrt( dx**2 + dy**2 )
+        return distance
+
+    def direction_to(self, dest_x, dest_y):
+        dx = 0
+        if dest_x < self.x: dx = -1
+        if dest_x > self.x: dx = 1
+
+        dy = 0
+        if dest_y < self.y: dy = -1
+        if dest_y > self.y: dy = 1
+
+        return (dx, dy)
+
 
 #-------------------------------------------------------------------------
 class Creature(GameObject):
