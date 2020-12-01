@@ -70,6 +70,17 @@ class Creature(GameObject):
     def __str__(self):
         return self.name
 
+    def can_see(floor, x2, y2):
+        dx = x2 - self.x
+        dy = y2 - self.y
+
+        for x in range(x1, x2+1):
+            y = round(y1 + dy * (x - x1) / dx)
+            if floor[x][y].blocks_sight:
+                return False
+        return True
+
+
 
 #-------------------------------------------------------------------------
 class Player(Creature):

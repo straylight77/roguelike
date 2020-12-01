@@ -184,7 +184,7 @@ def handle_keys(c, screen):
     return advance_time
 
 
-
+# only works in the positive-only quadrant?
 def draw_line(scr, x1, y1, x2, y2):
     dx = x2 - x1
     dy = y2 - y1
@@ -217,7 +217,7 @@ def main(stdscr):
         draw_footer(stdscr, player)
         draw_messages(stdscr, msg)
 
-        draw_line(stdscr, 0,0, player.x, player.y)
+        #draw_line(stdscr, 0, 0, player.x, player.y)
 
         stdscr.move(player.y+1, player.x)
 
