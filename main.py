@@ -12,9 +12,6 @@ msg = MessageQueue()
 monsters = [ ]
 
 #--------------------------------- funcs ---------------------------------
-def init():
-    curses.curs_set(0)  # make cursor invisible
-
 def draw_footer(screen, p):
 
     screen.addstr(22, 0, "HP:{}({})".format(p.hp["current"], p.hp["max"]))
@@ -193,9 +190,8 @@ def handle_keys(c, screen):
 #--------------------------------- main() ---------------------------------
 def main(stdscr):
     global done
-    init()
-    test_data.make_test_floor2(floor, player)
 
+    test_data.make_test_floor2(floor, player)
     monsters.append( Monster("rat", 15, 8) )
     monsters.append( Monster("skeleton", 43, 10) )
 
@@ -203,13 +199,15 @@ def main(stdscr):
 
     while not done:
 
-        stdscr.clear()
+        stdscr.move(0,0)
+        stdscr.clrtoeol()
 
         draw_dungeon(stdscr, floor)
         draw_all_objects(stdscr, monsters)
         draw_object(stdscr, player)
         draw_footer(stdscr, player)
         draw_messages(stdscr, msg)
+        stdscr.move(player.y+1, player.x)
 
         stdscr.refresh()
         cmd = stdscr.getch()
