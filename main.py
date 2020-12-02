@@ -121,11 +121,18 @@ def do_move(obj, dx, dy):
 
 
 def do_monster_turn(obj):
-    dist = obj.distance_from(player.x, player.y)
-    if dist > 5:
+    if obj.can_see(floor, player.x, player.y):
+        obj.last_player_pos = (player.x, player.y)
+        d = obj.direction_to(player.x, player.y)
+
+    elif obj.last_player_pos != None:
+        x, y = obj.last_player_pos
+        d = obj.direction_to(x, y)
+        if d == (0,0):
+            obj.last_player_pos = None
+    else:
         return
 
-    d = obj.direction_to(player.x, player.y)
     t2 = floor.tiles[ obj.x+d[0] ][ obj.y+d[1] ]
     m2 = None
     for m in monsters:
@@ -134,6 +141,7 @@ def do_monster_turn(obj):
 
     if player.x == obj.x+d[0] and player.y == obj.y+d[1]:
         handle_combat(obj, player)
+
     elif not t2.blocks_move and m2 == None:
         obj.move(d[0], d[1])
 
@@ -184,14 +192,7 @@ def handle_keys(c, screen):
     return advance_time
 
 
-# only works in the positive-only quadrant?
-def draw_line(scr, x1, y1, x2, y2):
-    dx = x2 - x1
-    dy = y2 - y1
 
-    for x in range(x1, x2+1):
-        y = round(y1 + dy * (x - x1) / dx)
-        scr.addch(y+1, x, '*')
 
 
 
@@ -216,8 +217,6 @@ def main(stdscr):
         draw_object(stdscr, player)
         draw_footer(stdscr, player)
         draw_messages(stdscr, msg)
-
-        #draw_line(stdscr, 0, 0, player.x, player.y)
 
         stdscr.move(player.y+1, player.x)
 

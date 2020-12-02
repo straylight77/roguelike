@@ -54,6 +54,56 @@ class GameObject():
 
         return (dx, dy)
 
+    def get_line(self, start, end):
+        """Bresenham's Line Algorithm
+        Produces a list of tuples from start and end
+        http://www.roguebasin.com/index.php?title=Bresenham%27s_Line_Algorithm
+        """
+        # Setup initial conditions
+        x1, y1 = start
+        x2, y2 = end
+        dx = x2 - x1
+        dy = y2 - y1
+
+        # Determine how steep the line is
+        is_steep = abs(dy) > abs(dx)
+
+        # Rotate line
+        if is_steep:
+            x1, y1 = y1, x1
+            x2, y2 = y2, x2
+
+        # Swap start and end points if necessary and store swap state
+        swapped = False
+        if x1 > x2:
+            x1, x2 = x2, x1
+            y1, y2 = y2, y1
+            swapped = True
+
+        # Recalculate differentials
+        dx = x2 - x1
+        dy = y2 - y1
+
+        # Calculate error
+        error = int(dx / 2.0)
+        ystep = 1 if y1 < y2 else -1
+
+        # Iterate over bounding box generating points between start and end
+        y = y1
+        points = []
+        for x in range(x1, x2 + 1):
+            coord = (y, x) if is_steep else (x, y)
+            points.append(coord)
+            error -= abs(dy)
+            if error < 0:
+                y += ystep
+                error += dx
+
+        # Reverse the list if the coordinates were swapped
+        if swapped:
+            points.reverse()
+        return points
+
 
 #-------------------------------------------------------------------------
 class Creature(GameObject):
@@ -70,16 +120,13 @@ class Creature(GameObject):
     def __str__(self):
         return self.name
 
-    def can_see(floor, x2, y2):
-        dx = x2 - self.x
-        dy = y2 - self.y
-
-        for x in range(x1, x2+1):
-            y = round(y1 + dy * (x - x1) / dx)
-            if floor[x][y].blocks_sight:
+    def can_see(self, floor, x2, y2):
+        line = self.get_line( (self.x, self.y), (x2, y2) )
+        for pt in line:
+            x, y = pt
+            if floor.tiles[x][y].blocks_sight:
                 return False
         return True
-
 
 
 #-------------------------------------------------------------------------
@@ -103,7 +150,10 @@ class Monster(Creature):
         self.name = name
         super().__init__(m[0], m[1], m[2], m[3], m[4])
         self.set_pos(x, y)
+        self.last_player_pos = None
 
+    def do_turn(self, player, floor):
+        pass
 
 #-------------------------------------------------------------------------
 class Tile():
@@ -116,6 +166,7 @@ class Tile():
         self.type = t
         self.char = TILE_TYPES[t][0]
         self.blocks_move = TILE_TYPES[t][1]
+        self.blocks_sight = self.blocks_move
 
     def __str__(self):
         return self.name
