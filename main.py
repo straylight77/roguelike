@@ -9,7 +9,12 @@ import test_data
 # - convert player.x and player.y to player.pos (tuple)
 # - new Display class for all curses and draw_* stuff?
 # - close door?  Need a function to prompt for a direction
-# - use a curses window for map display?
+# - items and inventory
+#   - gold (pickup, drop)
+#   - healing potions (quaff, use/activate)
+#   - weapons (wield)
+#   - armor (wear, take off)
+# - field of view (visible, explored)
 
 #-------------------------------- globals -------------------------------
 player = Player()
@@ -20,8 +25,8 @@ msg = MessageQueue()
 #--------------------------------- funcs ---------------------------------
 def draw_footer(screen, p):
 
-    screen.addstr(22, 0, f"HP:{p.hp}({p.max_hp})")
-    screen.addstr(23, 0, f"MP:{p.mp}({p.max_mp})")
+    screen.addstr(22, 0, f"HP:{p.hp}({p.max_hp}) ")
+    screen.addstr(23, 0, f"MP:{p.mp}({p.max_mp}) ")
 
     screen.addstr(22, 12, f"St:18 Dx:12  Atk:{p.prof:+}")
     screen.addstr(23, 12, f"Co:14 Mi:8   Def:{p.ac}")
