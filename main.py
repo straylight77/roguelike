@@ -7,11 +7,9 @@ import test_data
 
 # TODO:
 # - convert player.x and player.y to player.pos (tuple)
-# - move handle_combat to Creature class
-# - move do_monster_turn to Monster class
-# - use a curses window for map display?
 # - new Display class for all curses and draw_* stuff?
 # - close door?  Need a function to prompt for a direction
+# - use a curses window for map display?
 
 #-------------------------------- globals -------------------------------
 player = Player()
@@ -60,9 +58,9 @@ def draw_messages(screen, mq):
     mq.clear()
 
 
-def do_player_move(obj, dx, dy):
-    t2 = floor.tiles[ obj.x+dx ][ obj.y+dy ]
-    m2 = floor.get_monster_at(obj.x+dx, obj.y+dy)
+def do_player_move(dx, dy):
+    t2 = floor.get_tile_at( player.x+dx, player.y+dy )
+    m2 = floor.get_monster_at(player.x+dx, player.y+dy)
 
     if m2 is not None:
         combat_msg = player.do_attack(m2)
@@ -80,31 +78,8 @@ def do_player_move(obj, dx, dy):
         msg.add("Your way in that direction is blocked.")
 
     else:
-        obj.move(dx, dy)
+        player.move(dx, dy)
 
-
-def do_monster_turn(obj):
-    if obj.can_see(floor, player.x, player.y):
-        obj.last_player_pos = (player.x, player.y)
-        d = obj.direction_to(player.x, player.y)
-
-    elif obj.last_player_pos != None:
-        x, y = obj.last_player_pos
-        d = obj.direction_to(x, y)
-        if d == (0,0):
-            obj.last_player_pos = None
-    else:
-        return
-
-    t2 = floor.tiles[ obj.x+d[0] ][ obj.y+d[1] ]
-    m2 = floor.get_monster_at( obj.x+d[0], obj.y+d[1] )
-
-    if player.x == obj.x+d[0] and player.y == obj.y+d[1]:
-        combat_msg = obj.do_attack(player)
-        msg.add(combat_msg)
-
-    elif not t2.blocks_move and m2 == None:
-        obj.move(d[0], d[1])
 
 
 def handle_keys(c, screen):
@@ -116,21 +91,21 @@ def handle_keys(c, screen):
         advance_time = False
 
     elif c in (ord('k'), curses.KEY_UP):
-        do_player_move(player, 0, -1)
+        do_player_move(0, -1)
 
     elif c in (ord('j'), curses.KEY_DOWN):
-        do_player_move(player, 0, 1)
+        do_player_move(0, 1)
 
     elif c in (ord('h'), curses.KEY_LEFT):
-        do_player_move(player, -1, 0)
+        do_player_move(-1, 0)
 
     elif c in (ord('l'), curses.KEY_RIGHT):
-        do_player_move(player, 1, 0)
+        do_player_move(1, 0)
 
-    elif c == ord('y'): do_player_move(player, -1, -1)
-    elif c == ord('u'): do_player_move(player, 1, -1)
-    elif c == ord('b'): do_player_move(player, -1, 1)
-    elif c == ord('n'): do_player_move(player, 1, 1)
+    elif c == ord('y'): do_player_move(-1, -1)
+    elif c == ord('u'): do_player_move(1, -1)
+    elif c == ord('b'): do_player_move(-1, 1)
+    elif c == ord('n'): do_player_move(1, 1)
     elif c == ord('.'): msg.add("You rest for a moment.")
 
     elif c == ord('M'):
@@ -151,9 +126,6 @@ def handle_keys(c, screen):
         msg.add("Unknown command.  Type 'q' to exit.")
 
     return advance_time
-
-
-
 
 
 
@@ -188,7 +160,8 @@ def main(stdscr):
 
         # move monsters
         for m in floor.monsters:
-            do_monster_turn(m)
+            update_msg = m.update(player, floor)
+            msg.add(update_msg)
 
         # other updates
 

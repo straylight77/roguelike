@@ -134,7 +134,6 @@ class Creature(GameObject):
         return True
 
     def do_attack(self, defender):
-        outcome_msg = ""
         attack_roll = random.randint(1, 20)
         damage = 3
 
@@ -166,14 +165,14 @@ class Creature(GameObject):
 
         # apply damage and finally add a message describing the outcome
         if hit:
-            debug_str = f" [roll={attack_roll}, dmg={damage}]"
-            combat_msg = f"{attack_str}{debug_str} and {crit_str}{hit_str}"
+            debug_str = f" [{attack_roll}, {damage}]"
+            outcome_str = hit_str
             defender.hp -= damage
         else:
-            debug_str = f" [roll={attack_roll}]"
-            outcome_msg = f"{attack_str}{debug_str} and {crit_str}{miss_str}"
+            debug_str = f" [{attack_roll}]"
+            outcome_str = miss_str
 
-        return outcome_msg
+        return f"{attack_str}{debug_str} and {crit_str}{outcome_str}"
 
 
 #-------------------------------------------------------------------------
@@ -193,14 +192,35 @@ class Player(Creature):
 class Monster(Creature):
 
     def __init__(self, name, x, y):
-        m = MONSTERS[name]
+        char, hp, mp, ac, prof = MONSTERS[name]
         self.name = name
-        super().__init__(m[0], m[1], m[2], m[3], m[4])
+        super().__init__(char, hp, mp, ac, prof)
         self.set_pos(x, y)
         self.last_player_pos = None
 
-    def do_turn(self, player, floor):
-        pass
+    def update(self, player, floor):
+        msg_str = None
+
+        if self.can_see(floor, player.x, player.y):
+            d = self.direction_to(player.x, player.y)
+        else:
+            return
+
+        x2 = self.x + d[0]
+        y2 = self.y + d[1]
+
+        t2 = floor.get_tile_at(x2, y2)
+        m2 = floor.get_monster_at(x2, y2)
+
+        if player.x == x2 and player.y == y2:
+            msg_str = self.do_attack(player)
+
+        elif not t2.blocks_move and m2 == None:
+            self.move(d[0], d[1])
+
+        return msg_str
+
+
 
 
 #-------------------------------------------------------------------------
@@ -242,6 +262,9 @@ class Floor():
                 return m
         return None
 
+    def get_tile_at(self, x, y):
+        return self.tiles[x][y]
+
 
     def make_room(self, start_x, start_y, dx, dy):
         # create the floor tiles
@@ -280,6 +303,8 @@ class MessageQueue():
         self.wrap = textwrap.TextWrapper(wrap_width)
 
     def add(self, m):
+        if m is None:
+            return
         self.messages.append(m)
         self.history.append(m)
 
