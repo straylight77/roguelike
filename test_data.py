@@ -37,7 +37,7 @@ def make_test_floor2(floor, player):
 
     floor.make_room(5, 13, 12, 5)
     floor.make_tunnel(13, 9, 13, 13)
-    floor.make_tunnel(16, 15, 43, 15)
+    floor.make_tunnel(16, 15, 57, 15)
     floor.make_tunnel(43, 13, 43, 15)
 
     floor.make_room(52, 3, 12, 5)
@@ -46,8 +46,14 @@ def make_test_floor2(floor, player):
     floor.make_tunnel(59, 7, 59, 12)
     floor.tiles[59][7].set_type("door_closed")
     floor.tiles[59][12].set_type("door_closed")
+    floor.tiles[55][15].set_type("door_closed")
+    floor.tiles[16][15].set_type("door_closed")
+
+    floor.tiles[55][5].set_type("altar")
+    floor.tiles[58][14].set_type("stairs_down")
 
     player.set_pos(12, 7)
+    floor.tiles[12][7].set_type("stairs_up")
 
 
 

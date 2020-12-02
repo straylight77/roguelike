@@ -11,7 +11,11 @@ TILE_TYPES = {
     "vwall":        ('|', True),
     "door_closed":  ('+', True),
     "door_open":    ('`', False),
-    "tunnel":       ('#', False)
+    "tunnel":       ('#', False),
+    "fountain":     ('0', True),
+    "altar":        ('&', True),
+    "stairs_down":  ('>', False),
+    "stairs_up":    ('<', False),
 }
 
 MONSTERS = {
