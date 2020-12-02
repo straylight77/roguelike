@@ -155,6 +155,7 @@ class Monster(Creature):
     def do_turn(self, player, floor):
         pass
 
+
 #-------------------------------------------------------------------------
 class Tile():
     def __init__(self, type=None):
@@ -170,6 +171,7 @@ class Tile():
 
     def __str__(self):
         return self.name
+
 
 #-------------------------------------------------------------------------
 class Floor():

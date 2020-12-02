@@ -40,6 +40,13 @@ def make_test_floor2(floor, player):
     floor.make_tunnel(16, 15, 43, 15)
     floor.make_tunnel(43, 13, 43, 15)
 
+    floor.make_room(52, 3, 12, 5)
+    floor.make_room(55, 12, 8, 6)
+    floor.make_tunnel(47, 10, 58, 10)
+    floor.make_tunnel(59, 7, 59, 12)
+    floor.tiles[59][7].set_type("door_closed")
+    floor.tiles[59][12].set_type("door_closed")
+
     player.set_pos(12, 7)
 
 

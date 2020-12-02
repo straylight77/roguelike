@@ -4,6 +4,15 @@ import random
 from world import *  # repalce with explicit list
 import test_data
 
+
+# TODO:
+# - convert player.x and player.y to player.pos (tuple)
+# - move handle_combat to Creature class
+# - move do_monster_turn to Monster class
+# - use a curses window for map display?
+# - new Display class for all curses and draw_* stuff?
+# - close door?  Need a function to prompt for a direction
+
 #-------------------------------- globals -------------------------------
 player = Player()
 floor = Floor()
@@ -200,8 +209,8 @@ def handle_keys(c, screen):
 def main(stdscr):
     global done
 
-    test_data.make_test_floor(floor, player)
-    #test_data.make_test_floor2(floor, player)
+    #test_data.make_test_floor(floor, player)
+    test_data.make_test_floor2(floor, player)
     monsters.append( Monster("rat", 15, 8) )
     monsters.append( Monster("skeleton", 43, 10) )
 
@@ -232,14 +241,14 @@ def main(stdscr):
         # other updates
 
         # check for player death
-        if player.hp <= 0:
-            advance_time = False
-            stdscr.move(0, 0)
-            stdscr.clrtoeol()
-            stdscr.addstr(0, 0, "You have died.  Game over! (press a key)")
-            stdscr.refresh()
-            stdscr.getch()
-            done = True
+        #if player.hp <= 0:
+        #    advance_time = False
+        #    stdscr.move(0, 0)
+        #    stdscr.clrtoeol()
+        #    stdscr.addstr(0, 0, "You have died.  Game over! (press a key)")
+        #    stdscr.refresh()
+        #    stdscr.getch()
+        #    done = True
 
 
 
