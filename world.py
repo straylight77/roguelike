@@ -1,4 +1,5 @@
 import textwrap
+import random
 
 MAP_WIDTH = 80
 MAP_HEIGHT = 21
@@ -132,6 +133,48 @@ class Creature(GameObject):
                 return False
         return True
 
+    def do_combat(self, defender):
+        outcome_msg = ""
+        attack_roll = random.randint(1, 20)
+        damage = 3
+
+        #"You attack the <thing> and (crtically) hit/miss."
+        #"The <thing> attacks you and (crtically) hits/misses."
+
+        # initial strings for 1st person or 2nd
+        if self.name == "you":
+            attack_str = f"You attack the {defender}"
+            hit_str = "hit!"
+            miss_str = "miss."
+        else:
+            attack_str = f"The {self.name} attacks you"
+            hit_str = "hits!"
+            miss_str = "misses."
+
+        # check if the attack hits and if it's a crit
+        hit = False
+        crit_str = ""
+        if attack_roll == 20:
+            crit_str = "critically "
+            hit = True
+            damage *= 2
+        elif attack_roll == 1:
+            crit_str = "critically "
+            hit = False
+        elif (attack_roll + self.prof) >= defender.ac:
+            hit = True
+
+        # apply damage and finally add a message describing the outcome
+        if hit:
+            debug_str = f" [roll={attack_roll}, dmg={damage}]"
+            combat_msg = f"{attack_str}{debug_str} and {crit_str}{hit_str}"
+            defender.hp -= damage
+        else:
+            debug_str = f" [roll={attack_roll}]"
+            outcome_msg = f"{attack_str}{debug_str} and {crit_str}{miss_str}"
+
+        return outcome_msg
+
 
 #-------------------------------------------------------------------------
 class Player(Creature):
@@ -224,6 +267,10 @@ class MessageQueue():
     def add(self, m):
         self.messages.append(m)
         self.history.append(m)
+
+    def extend(self, m_list):
+        self.messages.extend(m_list)
+        self.history.extend(m_list)
 
     def clear(self):
         self.messages.clear()

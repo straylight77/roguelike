@@ -61,53 +61,7 @@ def draw_messages(screen, mq):
     mq.clear()
 
 
-def handle_combat(attacker, defender):
-    attack_roll = random.randint(1, 20)
-    damage = 3
-
-    #"You attack the <thing> and (crtically) hit/miss."
-    #"The <thing> attacks you and (crtically) hits/misses."
-
-    # initial strings for 1st person or 2nd
-    if attacker.name == "you":
-        attack_str = f"You attack the {defender}"
-        hit_str = "hit!"
-        miss_str = "miss."
-    else:
-        attack_str = f"The {attacker} attacks you"
-        hit_str = "hits!"
-        miss_str = "misses."
-
-    # check if the attack hits and if it's a crit
-    hit = False
-    crit_str = ""
-    if attack_roll == 20:
-        crit_str = "critically "
-        hit = True
-        damage *= 2
-    elif attack_roll == 1:
-        crit_str = "critically "
-        hit = False
-    elif (attack_roll + attacker.prof) >= defender.ac:
-        hit = True
-
-    # apply damage and finally add a message describing the outcome
-    if hit:
-        debug_str = f" [roll={attack_roll}, dmg={damage}]"
-        msg.add(f"{attack_str}{debug_str} and {crit_str}{hit_str}")
-        defender.hp -= damage
-    else:
-        debug_str = f" [roll={attack_roll}]"
-        msg.add(f"{attack_str}{debug_str} and {crit_str}{miss_str}")
-
-    # check if player is attacker and if the monster is killed
-    if attacker.name == "you" and defender.hp <= 0:
-        msg.add(f"You have defeated the {defender}!")
-        player.xp += 50
-        monsters.remove(defender)
-
-
-def do_move(obj, dx, dy):
+def do_player_move(obj, dx, dy):
     t2 = floor.tiles[ obj.x+dx ][ obj.y+dy ]
 
     m2 = None
@@ -116,7 +70,13 @@ def do_move(obj, dx, dy):
             m2 = m
 
     if m2 is not None:
-        handle_combat(player, m2)
+        #handle_combat(player, m2)
+        combat_msg = player.do_combat(m2)
+        msg.add(combat_msg)
+        if m2.hp <= 0:
+            msg.add(f"You have defeated the {m2}!")
+            player.xp += 50
+            monsters.remove(m2)
 
     elif t2.type == "door_closed":
         msg.add("You open the door.")
@@ -149,7 +109,8 @@ def do_monster_turn(obj):
             m2 = m
 
     if player.x == obj.x+d[0] and player.y == obj.y+d[1]:
-        handle_combat(obj, player)
+        combat_msg = obj.do_combat(player)
+        msg.add(combat_msg)
 
     elif not t2.blocks_move and m2 == None:
         obj.move(d[0], d[1])
@@ -164,21 +125,21 @@ def handle_keys(c, screen):
         advance_time = False
 
     elif c in (ord('k'), curses.KEY_UP):
-        do_move(player, 0, -1)
+        do_player_move(player, 0, -1)
 
     elif c in (ord('j'), curses.KEY_DOWN):
-        do_move(player, 0, 1)
+        do_player_move(player, 0, 1)
 
     elif c in (ord('h'), curses.KEY_LEFT):
-        do_move(player, -1, 0)
+        do_player_move(player, -1, 0)
 
     elif c in (ord('l'), curses.KEY_RIGHT):
-        do_move(player, 1, 0)
+        do_player_move(player, 1, 0)
 
-    elif c == ord('y'): do_move(player, -1, -1)
-    elif c == ord('u'): do_move(player, 1, -1)
-    elif c == ord('b'): do_move(player, -1, 1)
-    elif c == ord('n'): do_move(player, 1, 1)
+    elif c == ord('y'): do_player_move(player, -1, -1)
+    elif c == ord('u'): do_player_move(player, 1, -1)
+    elif c == ord('b'): do_player_move(player, -1, 1)
+    elif c == ord('n'): do_player_move(player, 1, 1)
     elif c == ord('.'): msg.add("You rest for a moment.")
 
     elif c == ord('M'):
