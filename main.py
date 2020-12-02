@@ -18,7 +18,6 @@ player = Player()
 floor = Floor()
 done = False
 msg = MessageQueue()
-monsters = [ ]
 
 #--------------------------------- funcs ---------------------------------
 def draw_footer(screen, p):
@@ -63,20 +62,15 @@ def draw_messages(screen, mq):
 
 def do_player_move(obj, dx, dy):
     t2 = floor.tiles[ obj.x+dx ][ obj.y+dy ]
-
-    m2 = None
-    for m in monsters:
-        if m.x == obj.x+dx and m.y == obj.y+dy:
-            m2 = m
+    m2 = floor.get_monster_at(obj.x+dx, obj.y+dy)
 
     if m2 is not None:
-        #handle_combat(player, m2)
-        combat_msg = player.do_combat(m2)
+        combat_msg = player.do_attack(m2)
         msg.add(combat_msg)
         if m2.hp <= 0:
             msg.add(f"You have defeated the {m2}!")
             player.xp += 50
-            monsters.remove(m2)
+            floor.remove_monster(m2)
 
     elif t2.type == "door_closed":
         msg.add("You open the door.")
@@ -103,13 +97,10 @@ def do_monster_turn(obj):
         return
 
     t2 = floor.tiles[ obj.x+d[0] ][ obj.y+d[1] ]
-    m2 = None
-    for m in monsters:
-        if m.x == obj.x+d[0] and m.y == obj.y+d[1]:
-            m2 = m
+    m2 = floor.get_monster_at( obj.x+d[0], obj.y+d[1] )
 
     if player.x == obj.x+d[0] and player.y == obj.y+d[1]:
-        combat_msg = obj.do_combat(player)
+        combat_msg = obj.do_attack(player)
         msg.add(combat_msg)
 
     elif not t2.blocks_move and m2 == None:
@@ -172,8 +163,8 @@ def main(stdscr):
 
     #test_data.make_test_floor(floor, player)
     test_data.make_test_floor2(floor, player)
-    monsters.append( Monster("rat", 15, 8) )
-    monsters.append( Monster("skeleton", 43, 10) )
+    floor.add_monster( Monster("rat", 15, 8) )
+    floor.add_monster( Monster("skeleton", 43, 10) )
 
     msg.add("Welcome! Press 'q' to exit.")
 
@@ -183,7 +174,7 @@ def main(stdscr):
         stdscr.clrtoeol()
 
         draw_dungeon(stdscr, floor)
-        draw_all_objects(stdscr, monsters)
+        draw_all_objects(stdscr, floor.monsters)
         draw_object(stdscr, player)
         draw_footer(stdscr, player)
         draw_messages(stdscr, msg)
@@ -196,7 +187,7 @@ def main(stdscr):
             player.moves += 1
 
         # move monsters
-        for m in monsters:
+        for m in floor.monsters:
             do_monster_turn(m)
 
         # other updates

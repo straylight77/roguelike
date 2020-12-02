@@ -133,7 +133,7 @@ class Creature(GameObject):
                 return False
         return True
 
-    def do_combat(self, defender):
+    def do_attack(self, defender):
         outcome_msg = ""
         attack_roll = random.randint(1, 20)
         damage = 3
@@ -223,10 +223,25 @@ class Tile():
 #-------------------------------------------------------------------------
 class Floor():
     def __init__(self):
+        self.depth = 1
+        self.monsters = [ ]
         self.tiles = [
             [ Tile() for y in range(MAP_HEIGHT) ]
             for x in range(MAP_WIDTH)
         ]
+
+    def add_monster(self, m):
+        self.monsters.append(m)
+
+    def remove_monster(self, m):
+        self.monsters.remove(m)
+
+    def get_monster_at(self, x, y):
+        for m in self.monsters:
+            if m.x == x and m.y == y:
+                return m
+        return None
+
 
     def make_room(self, start_x, start_y, dx, dy):
         # create the floor tiles
