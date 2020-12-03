@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import curses
 import random
-from world import *  # repalce with explicit list
+import world
 import sample
 
 
@@ -18,10 +18,10 @@ import sample
 # - colors!
 
 #-------------------------------- globals -------------------------------
-player = Player()
-floor = Floor()
+player = world.Player()
+floor = world.Floor()
 done = False
-msg = MessageQueue()
+msg = world.MessageQueue()
 
 DIRECTION_KEY_LOOKUP = {
     curses.KEY_UP:    ( 0, -1),
@@ -63,8 +63,8 @@ def draw_footer(screen, p):
 
 def draw_dungeon(screen, m):
     # top line of the screen is the message line, so y+1
-    for x in range(0, MAP_WIDTH):
-        for y in range(0, MAP_HEIGHT):
+    for x in range(0, world.MAP_WIDTH):
+        for y in range(0, world.MAP_HEIGHT):
             screen.addch(y+1, x, m.tiles[x][y].char)
 
 def draw_object(screen, obj):
@@ -190,8 +190,8 @@ def main(stdscr):
 
     #sample.make_test_floor(floor, player)
     sample.make_test_floor2(floor, player)
-    floor.add_monster( Monster("rat", 15, 8) )
-    floor.add_monster( Monster("skeleton", 43, 10) )
+    floor.add_monster( world.Monster("rat", 15, 8) )
+    floor.add_monster( world.Monster("skeleton", 43, 10) )
 
     msg.add("Welcome! Press 'q' to exit.")
 
