@@ -2,7 +2,7 @@
 import curses
 import random
 from world import *  # repalce with explicit list
-import test_data
+import sample
 
 
 # TODO:
@@ -14,6 +14,7 @@ import test_data
 #   - healing potions (quaff, use/activate)
 #   - weapons (wield)
 #   - armor (wear, take off)
+# - shooting and throwing
 # - field of view (visible, explored)
 
 #-------------------------------- globals -------------------------------
@@ -86,6 +87,25 @@ def do_player_move(dx, dy):
         player.move(dx, dy)
 
 
+def prompt_direction(screen, cursor_pos = None, message = "Which direction?"):
+    screen.move(0, 0)
+    screen.clrtoeol()
+    screen.addstr(0, 0, message)
+    if cursor_pos is not None:
+        screen.move(cursor_pos[1]+1, cursor_pos[0])
+
+    c = screen.getch()
+    dir = None
+    if c in (ord('k'), curses.KEY_UP):      dir = (0, -1)
+    elif c in (ord('j'), curses.KEY_DOWN):  dir = (0, 1)
+    elif c in (ord('h'), curses.KEY_LEFT):  dir = (-1, 0)
+    elif c in (ord('l'), curses.KEY_RIGHT): dir = (1, 0)
+    elif c == ord('y'): dir = (-1, -1)
+    elif c == ord('u'): dir = (1, -1)
+    elif c == ord('b'): dir = (-1, 1)
+    elif c == ord('n'): dir = (1, 1)
+    return dir
+
 
 def handle_keys(c, screen):
     global done
@@ -113,6 +133,26 @@ def handle_keys(c, screen):
     elif c == ord('n'): do_player_move(1, 1)
     elif c == ord('.'): msg.add("You rest for a moment.")
 
+    elif c == ord('o'):
+        dx, dy = prompt_direction(screen, (player.x, player.y))
+        t = floor.get_tile_at( player.x+dx, player.y+dy )
+        if t.type == 'door_closed':
+            msg.add("You open the door.")
+            t.set_type('door_open')
+        else:
+            msg.add("There's no closed door there.")
+
+
+    elif c == ord('c'):
+        dx, dy = prompt_direction(screen, (player.x, player.y))
+        t = floor.get_tile_at( player.x+dx, player.y+dy )
+        if t.type == 'door_open':
+            msg.add("You close the door.")
+            t.set_type('door_closed')
+        else:
+            msg.add("There's no open door there.")
+
+
     elif c == ord('M'):
         advance_time = False
         screen.move(0, 0)
@@ -138,8 +178,8 @@ def handle_keys(c, screen):
 def main(stdscr):
     global done
 
-    #test_data.make_test_floor(floor, player)
-    test_data.make_test_floor2(floor, player)
+    #sample.make_test_floor(floor, player)
+    sample.make_test_floor2(floor, player)
     floor.add_monster( Monster("rat", 15, 8) )
     floor.add_monster( Monster("skeleton", 43, 10) )
 
