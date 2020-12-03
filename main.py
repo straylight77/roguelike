@@ -8,7 +8,6 @@ import sample
 # TODO:
 # - convert player.x and player.y to player.pos (tuple)
 # - new Display class for all curses and draw_* stuff?
-# - close door?  Need a function to prompt for a direction
 # - items and inventory
 #   - gold (pickup, drop)
 #   - healing potions (quaff, use/activate)
@@ -16,12 +15,29 @@ import sample
 #   - armor (wear, take off)
 # - shooting and throwing
 # - field of view (visible, explored)
+# - colors!
 
 #-------------------------------- globals -------------------------------
 player = Player()
 floor = Floor()
 done = False
 msg = MessageQueue()
+
+DIRECTION_KEY_LOOKUP = {
+    curses.KEY_UP:    ( 0, -1),
+    curses.KEY_DOWN:  ( 0,  1),
+    curses.KEY_LEFT:  (-1,  0),
+    curses.KEY_RIGHT: ( 1,  0),
+    ord('k'): ( 0, -1),
+    ord('j'): ( 0,  1),
+    ord('h'): (-1,  0),
+    ord('l'): ( 1,  0),
+    ord('y'): (-1, -1),
+    ord('u'): ( 1, -1),
+    ord('b'): (-1,  1),
+    ord('n'): ( 1,  1),
+}
+
 
 #--------------------------------- funcs ---------------------------------
 def draw_footer(screen, p):
@@ -63,6 +79,37 @@ def draw_messages(screen, mq):
     screen.addstr(0, 0, str(mq))
     mq.clear()
 
+def draw_message_history(screen, mq):
+    screen.move(0, 0)
+    screen.clrtoeol()
+    screen.addstr(0, 0, "LAST 20 MESSAGES:")
+    y = 1
+    for m in mq.history[-20:]:
+        screen.addstr(y, 0, m)
+        y += 1
+    screen.addstr(y, 0, "(done)")
+    screen.refresh()
+    screen.getch()
+
+
+def do_open(floor, x, y):
+    t = floor.get_tile_at(x, y)
+    if t.type == 'door_closed':
+        ret_msg = "You open the door."
+        t.set_type('door_open')
+    else:
+        ret_msg = "There's no door to open there."
+    return ret_msg
+
+def do_close(floor, x, y):
+    t = floor.get_tile_at(x, y)
+    if t.type == 'door_open':
+        ret_msg = "You close the door."
+        t.set_type('door_closed')
+    else:
+        ret_msg = "There's no door to close there."
+    return ret_msg
+
 
 def do_player_move(dx, dy):
     t2 = floor.get_tile_at( player.x+dx, player.y+dy )
@@ -95,15 +142,10 @@ def prompt_direction(screen, cursor_pos = None, message = "Which direction?"):
         screen.move(cursor_pos[1]+1, cursor_pos[0])
 
     c = screen.getch()
-    dir = None
-    if c in (ord('k'), curses.KEY_UP):      dir = (0, -1)
-    elif c in (ord('j'), curses.KEY_DOWN):  dir = (0, 1)
-    elif c in (ord('h'), curses.KEY_LEFT):  dir = (-1, 0)
-    elif c in (ord('l'), curses.KEY_RIGHT): dir = (1, 0)
-    elif c == ord('y'): dir = (-1, -1)
-    elif c == ord('u'): dir = (1, -1)
-    elif c == ord('b'): dir = (-1, 1)
-    elif c == ord('n'): dir = (1, 1)
+    try:
+        dir = DIRECTION_KEY_LOOKUP[c]
+    except KeyError:
+        dir = (0, 0)
     return dir
 
 
@@ -112,59 +154,27 @@ def handle_keys(c, screen):
     advance_time = True
 
     if c == ord('q'):
-        done = True
         advance_time = False
+        done = True
 
-    elif c in (ord('k'), curses.KEY_UP):
-        do_player_move(0, -1)
+    elif c in DIRECTION_KEY_LOOKUP.keys():
+        dx, dy = DIRECTION_KEY_LOOKUP[c]
+        do_player_move(dx, dy)
 
-    elif c in (ord('j'), curses.KEY_DOWN):
-        do_player_move(0, 1)
-
-    elif c in (ord('h'), curses.KEY_LEFT):
-        do_player_move(-1, 0)
-
-    elif c in (ord('l'), curses.KEY_RIGHT):
-        do_player_move(1, 0)
-
-    elif c == ord('y'): do_player_move(-1, -1)
-    elif c == ord('u'): do_player_move(1, -1)
-    elif c == ord('b'): do_player_move(-1, 1)
-    elif c == ord('n'): do_player_move(1, 1)
-    elif c == ord('.'): msg.add("You rest for a moment.")
+    elif c == ord('.'):
+        msg.add("You rest for a moment.")
 
     elif c == ord('o'):
         dx, dy = prompt_direction(screen, (player.x, player.y))
-        t = floor.get_tile_at( player.x+dx, player.y+dy )
-        if t.type == 'door_closed':
-            msg.add("You open the door.")
-            t.set_type('door_open')
-        else:
-            msg.add("There's no closed door there.")
-
+        msg.add( do_open(floor, player.x+dx, player.y+dy) )
 
     elif c == ord('c'):
         dx, dy = prompt_direction(screen, (player.x, player.y))
-        t = floor.get_tile_at( player.x+dx, player.y+dy )
-        if t.type == 'door_open':
-            msg.add("You close the door.")
-            t.set_type('door_closed')
-        else:
-            msg.add("There's no open door there.")
-
+        msg.add( do_close(floor, player.x+dx, player.y+dy) )
 
     elif c == ord('M'):
         advance_time = False
-        screen.move(0, 0)
-        screen.clrtoeol()
-        screen.addstr(0, 0, "LAST 20 MESSAGES:")
-        y = 1
-        for m in msg.history[-20:]:
-            screen.addstr(y, 0, m)
-            y += 1
-        screen.addstr(y, 0, "(done)")
-        screen.refresh()
-        screen.getch()
+        draw_message_history(screen, msg)
 
     else:
         advance_time = False
