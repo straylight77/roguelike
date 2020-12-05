@@ -240,6 +240,15 @@ def handle_keys(c, screen):
         floor.items.remove(item)
         msg.add(f"You pick up {item}.")
 
+    elif c == 'd':
+        item = prompt_inventory(screen, player, "Drop which item?")
+        if item is not None:
+            item.set_pos( player.x, player.y )
+            floor.add_item(item)
+            player.inventory.remove(item)
+            msg.add(f"You drop the {item}.")
+        else:
+            msg.add("Nevermind.")
 
     elif c == 'i':
         advance_time = False
@@ -268,7 +277,7 @@ def main(stdscr):
     floor.add_item( items.Item("gold", 45, 12) )
     floor.add_item( items.Item("healing potion", 15, 8) )
 
-    msg.add("Welcome! Press 'q' to exit.")
+    msg.add("Welcome! Type 'X' to exit.")
     player.pickup( items.Item("healing potion") )
 
     while not done:
