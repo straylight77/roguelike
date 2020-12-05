@@ -1,7 +1,10 @@
 #!/usr/bin/python
 import curses
 import random
-import world
+import helpers
+import dungeon
+import items
+import monsters
 import sample
 
 
@@ -22,10 +25,10 @@ import sample
 # - save game, high score list, player name, death screen
 
 #-------------------------------- globals -------------------------------
-player = world.Player()
-floor = world.Floor()
+player = monsters.Player()
+floor = dungeon.Floor()
 done = False
-msg = world.MessageQueue()
+msg = helpers.MessageQueue()
 
 DIRECTION_KEY_LOOKUP = {
     curses.KEY_UP:    ( 0, -1),
@@ -67,8 +70,8 @@ def draw_footer(screen, p):
 
 def draw_dungeon(screen, m):
     # top line of the screen is the message line, so y+1
-    for x in range(0, world.MAP_WIDTH):
-        for y in range(0, world.MAP_HEIGHT):
+    for x in range(0, dungeon.MAP_WIDTH):
+        for y in range(0, dungeon.MAP_HEIGHT):
             screen.addch(y+1, x, m.tiles[x][y].char)
 
 def draw_object(screen, obj):
@@ -256,13 +259,13 @@ def main(stdscr):
 
     #sample.make_test_floor(floor, player)
     sample.make_test_floor2(floor, player)
-    #floor.add_monster( world.Monster("rat", 15, 8) )
-    floor.add_monster( world.Monster("skeleton", 43, 10) )
-    floor.add_item( world.Item("gold", 45, 12) )
-    floor.add_item( world.Item("healing potion", 15, 8) )
+    #floor.add_monster( monsters.Monster("rat", 15, 8) )
+    floor.add_monster( monsters.Monster("skeleton", 43, 10) )
+    floor.add_item( items.Item("gold", 45, 12) )
+    floor.add_item( items.Item("healing potion", 15, 8) )
 
     msg.add("Welcome! Press 'q' to exit.")
-    player.pickup( world.Item("healing potion") )
+    player.pickup( items.Item("healing potion") )
 
     while not done:
 
