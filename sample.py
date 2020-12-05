@@ -49,7 +49,6 @@ def make_test_floor2(floor, player):
     floor.tiles[55][15].set_type("door_closed")
     floor.tiles[16][15].set_type("door_closed")
 
-    floor.tiles[55][5].set_type("altar")
     floor.tiles[58][14].set_type("stairs_down")
 
     floor.make_room(48, 2, 5, 4)

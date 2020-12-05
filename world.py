@@ -116,6 +116,39 @@ class GameObject():
 
 
 #-------------------------------------------------------------------------
+ITEMS_LIST = {
+    "gold": ('$'),
+    "healing potion": ('!'),
+    "mana potion": ('!'),
+    "scroll": ('?'),
+}
+
+class Item(GameObject):
+    def __init__(self, name, x=0, y=0):
+        char = ITEMS_LIST[name]
+        self.name = name
+        if name == "gold":
+            self.qty = random.randint(3, 12)
+        super().__init__(char, x, y)
+
+    def __str__(self):
+        if self.name == "gold":
+            s = f"{self.qty} gold pieces"
+        else:
+            s = f"a {self.name}"
+        return s
+
+    def quaff(self, player):
+        if self.name == "healing potion":
+            player.inventory.remove(self)
+            player.hp += 5
+            if player.hp > player.max_hp:
+                player.hp = player.max_hp
+            return f"You drink {self}.  You feel great!"
+        return None
+
+
+#-------------------------------------------------------------------------
 class Creature(GameObject):
 
     def __init__(self, char, hp, mp, ac, prof):
@@ -191,7 +224,13 @@ class Player(Creature):
         self.xp = 0
         self.level = 1
         self.depth = 1
+        self.inventory = [ ]
 
+    def pickup(self, i):
+        if i.name == "gold":
+            self.gold += i.qty
+        else:
+            self.inventory.append(i)
 
 #-------------------------------------------------------------------------
 class Monster(Creature):
@@ -250,6 +289,7 @@ class Floor():
     def __init__(self):
         self.depth = 1
         self.monsters = [ ]
+        self.items = [ ]
         self.tiles = [
             [ Tile() for y in range(MAP_HEIGHT) ]
             for x in range(MAP_WIDTH)
@@ -266,6 +306,19 @@ class Floor():
             if m.x == x and m.y == y:
                 return m
         return None
+
+    def add_item(self, i):
+        self.items.append(i)
+
+    def remove_item(self, i):
+        self.items.remove(m)
+
+    def get_item_at(self, x, y):
+        for m in self.items:
+            if m.x == x and m.y == y:
+                return m
+        return None
+
 
     def get_tile_at(self, x, y):
         return self.tiles[x][y]

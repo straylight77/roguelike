@@ -11,11 +11,15 @@ import sample
 # - items and inventory
 #   - gold (pickup, drop)
 #   - healing potions (quaff, use/activate)
+#   - scrolls (read)
 #   - weapons (wield)
-#   - armor (wear, take off)
+#   - armor (Wear, take off)
 # - shooting and throwing
 # - field of view (visible, explored)
 # - colors!
+# - random levels, 5-room dungeon?
+# - levelling up
+# - save game, high score list, player name, death screen
 
 #-------------------------------- globals -------------------------------
 player = world.Player()
@@ -92,6 +96,20 @@ def draw_message_history(screen, mq):
     screen.getch()
 
 
+def draw_inventory(screen, ply):
+    screen.move(0, 0)
+    screen.clrtoeol()
+    screen.addstr(0, 0, "INVENTORY:")
+    y = 1
+    for i in ply.inventory:
+        ch = chr( ord('a')+y-1 )
+        screen.addstr(y, 0, f"{ch}) {i.char} {i}")
+        y += 1
+    screen.addstr(y, 0, "(done)")
+    screen.refresh()
+    screen.getch()
+
+
 def do_open(floor, x, y):
     t = floor.get_tile_at(x, y)
     if t.type == 'door_closed':
@@ -114,6 +132,7 @@ def do_close(floor, x, y):
 def do_player_move(dx, dy):
     t2 = floor.get_tile_at( player.x+dx, player.y+dy )
     m2 = floor.get_monster_at(player.x+dx, player.y+dy)
+    i2 = floor.get_item_at(player.x+dx, player.y+dy)
 
     if m2 is not None:
         combat_msg = player.do_attack(m2)
@@ -133,6 +152,15 @@ def do_player_move(dx, dy):
     else:
         player.move(dx, dy)
 
+    #post-move checks
+    if i2 is not None:
+        msg.add(f"You see {i2} here.")
+        #player.pickup(i2)
+        #floor.items.remove(i2)
+        #msg.add(f"You pick up {i2}.")
+
+
+
 
 def prompt_direction(screen, cursor_pos = None, message = "Which direction?"):
     screen.move(0, 0)
@@ -149,11 +177,30 @@ def prompt_direction(screen, cursor_pos = None, message = "Which direction?"):
     return dir
 
 
+def prompt_inventory(screen, plyr, message = "Which item?", cat = None):
+    screen.move(0, 0)
+    screen.clrtoeol()
+    y = 1
+    for i in plyr.inventory:
+        ch = chr( ord('a')+y-1 )
+        screen.addstr(y, 0, f"{ch}) {i.char} {i}")
+        y += 1
+    screen.addstr(0, 0, message)
+    screen.refresh()
+    c = screen.getkey()
+    idx = ord(c)-ord('a')
+    if idx >= 0 and idx < len(plyr.inventory):
+        item = plyr.inventory[idx]
+    else:
+        item = None
+    return item
+
+
 def handle_keys(c, screen):
     global done
     advance_time = True
 
-    if c == ord('q'):
+    if c == ord('X'):
         advance_time = False
         done = True
 
@@ -171,6 +218,25 @@ def handle_keys(c, screen):
     elif c == ord('c'):
         dx, dy = prompt_direction(screen, (player.x, player.y))
         msg.add( do_close(floor, player.x+dx, player.y+dy) )
+
+    elif c == ord('q'):
+        item = prompt_inventory(screen, player, "Quaff which item?")
+        if item is not None:
+            m = item.quaff(player)
+            msg.add(m)
+        else:
+            msg.add("Nevermind.")
+
+    elif c == ord(','):
+        item = floor.get_item_at(player.x, player.y)
+        player.pickup(item)
+        floor.items.remove(item)
+        msg.add(f"You pick up {item}.")
+
+
+    elif c == ord('i'):
+        advance_time = False
+        draw_inventory(screen, player)
 
     elif c == ord('M'):
         advance_time = False
@@ -190,10 +256,13 @@ def main(stdscr):
 
     #sample.make_test_floor(floor, player)
     sample.make_test_floor2(floor, player)
-    floor.add_monster( world.Monster("rat", 15, 8) )
+    #floor.add_monster( world.Monster("rat", 15, 8) )
     floor.add_monster( world.Monster("skeleton", 43, 10) )
+    floor.add_item( world.Item("gold", 45, 12) )
+    floor.add_item( world.Item("healing potion", 15, 8) )
 
     msg.add("Welcome! Press 'q' to exit.")
+    player.pickup( world.Item("healing potion") )
 
     while not done:
 
@@ -202,6 +271,7 @@ def main(stdscr):
 
         draw_dungeon(stdscr, floor)
         draw_all_objects(stdscr, floor.monsters)
+        draw_all_objects(stdscr, floor.items)
         draw_object(stdscr, player)
         draw_footer(stdscr, player)
         draw_messages(stdscr, msg)
