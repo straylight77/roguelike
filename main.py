@@ -31,18 +31,22 @@ done = False
 msg = helpers.MessageQueue()
 
 DIRECTION_KEY_LOOKUP = {
-    curses.KEY_UP:    ( 0, -1),
-    curses.KEY_DOWN:  ( 0,  1),
-    curses.KEY_LEFT:  (-1,  0),
-    curses.KEY_RIGHT: ( 1,  0),
-    ord('k'): ( 0, -1),
-    ord('j'): ( 0,  1),
-    ord('h'): (-1,  0),
-    ord('l'): ( 1,  0),
-    ord('y'): (-1, -1),
-    ord('u'): ( 1, -1),
-    ord('b'): (-1,  1),
-    ord('n'): ( 1,  1),
+    'KEY_UP':    ( 0, -1),
+    'KEY_DOWN':  ( 0,  1),
+    'KEY_LEFT':  (-1,  0),
+    'KEY_RIGHT': ( 1,  0),
+    'KEY_PPAGE': ( 1, -1),
+    'KEY_NPAGE': (-1,  1),
+    'KEY_HOME':  (-1, -1),
+    'KEY_END':   ( 1,  1),
+    'k': ( 0, -1),
+    'j': ( 0,  1),
+    'h': (-1,  0),
+    'l': ( 1,  0),
+    'y': (-1, -1),
+    'u': ( 1, -1),
+    'b': (-1,  1),
+    'n': ( 1,  1),
 }
 
 
@@ -203,7 +207,7 @@ def handle_keys(c, screen):
     global done
     advance_time = True
 
-    if c == ord('X'):
+    if c == 'X':
         advance_time = False
         done = True
 
@@ -211,18 +215,18 @@ def handle_keys(c, screen):
         dx, dy = DIRECTION_KEY_LOOKUP[c]
         do_player_move(dx, dy)
 
-    elif c == ord('.'):
+    elif c == '.':
         msg.add("You rest for a moment.")
 
-    elif c == ord('o'):
+    elif c == 'o':
         dx, dy = prompt_direction(screen, (player.x, player.y))
         msg.add( do_open(floor, player.x+dx, player.y+dy) )
 
-    elif c == ord('c'):
+    elif c == 'c':
         dx, dy = prompt_direction(screen, (player.x, player.y))
         msg.add( do_close(floor, player.x+dx, player.y+dy) )
 
-    elif c == ord('q'):
+    elif c == 'q':
         item = prompt_inventory(screen, player, "Quaff which item?")
         if item is not None:
             m = item.quaff(player)
@@ -230,24 +234,24 @@ def handle_keys(c, screen):
         else:
             msg.add("Nevermind.")
 
-    elif c == ord(','):
+    elif c == ',':
         item = floor.get_item_at(player.x, player.y)
         player.pickup(item)
         floor.items.remove(item)
         msg.add(f"You pick up {item}.")
 
 
-    elif c == ord('i'):
+    elif c == 'i':
         advance_time = False
         draw_inventory(screen, player)
 
-    elif c == ord('M'):
+    elif c == 'M':
         advance_time = False
         draw_message_history(screen, msg)
 
     else:
         advance_time = False
-        msg.add("Unknown command.  Type 'q' to exit.")
+        msg.add(f"Unknown command '{c}'.  Type 'q' to exit.")
 
     return advance_time
 
@@ -282,7 +286,7 @@ def main(stdscr):
         stdscr.move(player.y+1, player.x)
 
         stdscr.refresh()
-        cmd = stdscr.getch()
+        cmd = stdscr.getkey()
         if ( handle_keys(cmd, stdscr) ):
             player.moves += 1
 
