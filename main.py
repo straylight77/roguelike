@@ -11,9 +11,9 @@ import sample
 # TODO:
 # - convert player.x and player.y to player.pos (tuple)
 # - new Display class for all curses and draw_* stuff?
-# - items and inventory
-#   - gold (pickup, drop)
-#   - healing potions (quaff, use/activate)
+# X items and inventory
+#   X gold (pickup, drop)
+#   X healing potions (quaff)
 #   - scrolls (read)
 #   - weapons (wield)
 #   - armor (Wear, take off)
@@ -100,7 +100,7 @@ def draw_message_history(screen, mq):
         y += 1
     screen.addstr(y, 0, "(done)")
     screen.refresh()
-    screen.getch()
+    screen.getkey()
 
 
 def draw_inventory(screen, ply):
@@ -110,11 +110,11 @@ def draw_inventory(screen, ply):
     y = 1
     for i in ply.inventory:
         ch = chr( ord('a')+y-1 )
-        screen.addstr(y, 0, f"{ch}) {i.char} {i}")
+        screen.addstr(y, 0, f"{ch} - {i.char} {i}")
         y += 1
     screen.addstr(y, 0, "(done)")
     screen.refresh()
-    screen.getch()
+    screen.getkey()
 
 
 def do_open(floor, x, y):
@@ -123,7 +123,7 @@ def do_open(floor, x, y):
         ret_msg = "You open the door."
         t.set_type('door_open')
     else:
-        ret_msg = "There's no door to open there."
+        ret_msg = f"There's no door to open that direction."
     return ret_msg
 
 def do_close(floor, x, y):
@@ -132,7 +132,7 @@ def do_close(floor, x, y):
         ret_msg = "You close the door."
         t.set_type('door_closed')
     else:
-        ret_msg = "There's no door to close there."
+        ret_msg = f"There's no door to close that direction."
     return ret_msg
 
 
@@ -176,7 +176,7 @@ def prompt_direction(screen, cursor_pos = None, message = "Which direction?"):
     if cursor_pos is not None:
         screen.move(cursor_pos[1]+1, cursor_pos[0])
 
-    c = screen.getch()
+    c = screen.getkey()
     try:
         dir = DIRECTION_KEY_LOOKUP[c]
     except KeyError:
@@ -190,7 +190,7 @@ def prompt_inventory(screen, plyr, message = "Which item?", cat = None):
     y = 1
     for i in plyr.inventory:
         ch = chr( ord('a')+y-1 )
-        screen.addstr(y, 0, f"{ch}) {i.char} {i}")
+        screen.addstr(y, 0, f"{ch} - {i.char} {i}")
         y += 1
     screen.addstr(0, 0, message)
     screen.refresh()
@@ -313,7 +313,7 @@ def main(stdscr):
         #    stdscr.clrtoeol()
         #    stdscr.addstr(0, 0, "You have died.  Game over! (press a key)")
         #    stdscr.refresh()
-        #    stdscr.getch()
+        #    stdscr.getkey()
         #    done = True
 
 
