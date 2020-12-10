@@ -1,5 +1,27 @@
 import textwrap
 
+DIRECTION_KEY_LOOKUP = {
+    'KEY_UP':    ( 0, -1),
+    'KEY_DOWN':  ( 0,  1),
+    'KEY_LEFT':  (-1,  0),
+    'KEY_RIGHT': ( 1,  0),
+    'KEY_PPAGE': ( 1, -1),
+    'KEY_NPAGE': (-1,  1),
+    'KEY_HOME':  (-1, -1),
+    'KEY_END':   ( 1,  1),
+    'k': ( 0, -1),
+    'j': ( 0,  1),
+    'h': (-1,  0),
+    'l': ( 1,  0),
+    'y': (-1, -1),
+    'u': ( 1, -1),
+    'b': (-1,  1),
+    'n': ( 1,  1),
+}
+
+
+
+
 #------------------------- helper functions ---------------------------------
 def get_line(start, end):
     """Bresenham's Line Algorithm
