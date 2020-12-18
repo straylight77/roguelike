@@ -211,8 +211,32 @@ class Rect():
         self.width = width
         self.height = height
 
+    def get_corners(self):
+        pts = [
+            self.tl,
+            self.br,
+            (self.right, self.top),
+            (self.left, self.bottom)
+        ]
+        return pts
+
+
+    def contains(self, pt):
+        x, y = pt
+        if (self.left <= x <= self.right) and (self.top <= y <= self.bottom):
+            return True
+        else:
+            return False
+
+
     def overlaps_with(self, rect):
-        pass
+        for pt in self.get_corners():
+            if rect.contains(pt):
+                return True
+        for pt in rect.get_corners():
+            if self.contains(pt):
+                return True
+        return False
 
 
     def random_point_on_edge(self, direction):
