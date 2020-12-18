@@ -1,4 +1,5 @@
 import helpers
+import random
 
 MAP_WIDTH = 80
 MAP_HEIGHT = 21
@@ -38,8 +39,9 @@ class Tile():
 
 #-------------------------------------------------------------------------
 class Floor():
-    def __init__(self):
-        self.depth = 1
+
+    def __init__(self, depth=1):
+        self.depth = depth
         self.monsters = [ ]
         self.items = [ ]
         self.tiles = [

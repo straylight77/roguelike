@@ -60,8 +60,8 @@ def make_test_floor2(floor, player):
     player.set_pos(12, 7)
     floor.tiles[12][7].set_type("stairs_up")
 
-    floor.add_monster( monsters.Monster("rat", 15, 8) )
     floor.add_monster( monsters.Monster("skeleton", 43, 10) )
+    floor.add_monster( monsters.Monster("rat", 15, 8) )
     floor.add_item( items.Item("gold", 45, 12) )
     floor.add_item( items.Item("healing potion", 15, 8) )
 

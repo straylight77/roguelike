@@ -147,13 +147,78 @@ def handle_keys(c, screen):
 
 
 
+def empty_space(floor, start_x, start_y, dx, dy):
+    for x in range(start_x, start_x+dx):
+        for y in range(start_y, start_y+dy):
+            t = floor.get_tile_at(x, y)
+            if t.type != 'empty':
+                return False
+    return True
+
+
+def make_random_dungeon(floor, player):
+    num_rooms = random.randint(5, 8)
+    max_tries = 100
+    keep_going = True
+
+    while(keep_going):
+        dx = random.randint(6, 12)
+        dy = random.randint(5, 8)
+
+        x = random.randint(0, dungeon.MAP_WIDTH-dx)
+        y = random.randint(0, dungeon.MAP_HEIGHT-dy)
+
+        if empty_space(floor, x, y, dx, dy):
+            floor.make_room(x, y, dx, dy)
+            num_rooms -= 1
+
+        max_tries -= 1
+        if (max_tries <= 0 or num_rooms <= 0):
+            player.set_pos(x+(dx//2), y+(dy//2))
+            keep_going = False
+
+
+def make_random_dungeon2(floor, player):
+    rooms = [ ]
+    num_rooms = 5
+
+    rect = helpers.Rect(
+        width = random.randint(6,10),
+        height = random.randint(4,8)
+    )
+    rect.center = (dungeon.MAP_WIDTH//2, dungeon.MAP_HEIGHT//2)
+    rooms.append(rect)
+
+    for i in range(0, num_rooms):
+        dx = random.randint(6, 12)
+        dy = random.randint(5, 8)
+
+        x = random.randint(0, dungeon.MAP_WIDTH-dx)
+        y = random.randint(0, dungeon.MAP_HEIGHT-dy)
+
+        rect2 = helpers.Rect( (x,y), dx, dy )
+        #rect2.br = (dungeon.MAP_WIDTH//2+4, rect.top+1)
+        rooms.append(rect2)
+
+    for r in rooms:
+        floor.make_room(r.tl[0], r.tl[1], r.width, r.height)
+
+    for r in rooms:
+        pos = r.random_point_on_edge("top")
+        floor.get_tile_at(pos[0], pos[1]).set_type('door_closed')
+
+    player.set_pos(dungeon.MAP_WIDTH//2, dungeon.MAP_HEIGHT//2)
+
+
 #--------------------------------- main() ---------------------------------
 def main(stdscr):
     global done
 
 
     #sample.make_test_floor(floor, player)
-    sample.make_test_floor2(floor, player)
+    #sample.make_test_floor2(floor, player)
+    #make_random_dungeon(floor, player)
+    make_random_dungeon2(floor, player)
 
     msg.add("Welcome! Type 'X' to exit.")
     player.pickup( items.Item("healing potion") )
@@ -164,8 +229,8 @@ def main(stdscr):
         stdscr.clrtoeol()
 
         disp.draw_dungeon(stdscr, floor)
-        disp.draw_all_objects(stdscr, floor.monsters)
         disp.draw_all_objects(stdscr, floor.items)
+        disp.draw_all_objects(stdscr, floor.monsters)
         disp.draw_object(stdscr, player)
         disp.draw_footer(stdscr, player)
         disp.draw_messages(stdscr, msg)

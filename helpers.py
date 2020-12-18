@@ -1,4 +1,5 @@
 import textwrap
+import random
 
 DIRECTION_KEY_LOOKUP = {
     'KEY_UP':    ( 0, -1),
@@ -147,5 +148,89 @@ class MessageQueue():
         self.add(m)
 
 
+#-------------------------------------------------------------------------
+class Rect():
 
+    def __init__(self, tl=(0,0), width=0, height=0):
+        self._tl = tl
+        self.width = width
+        self.height = height
+
+    def __str__(self):
+        return f"{self.tl},{self.br}"
+
+    def __repr__(self):
+        return f"Rect:{self}"
+
+    def get_br(self):
+        return ( self._tl[0] + self.width, self._tl[1] + self.height )
+
+    def set_br(self, pos):
+        self._tl = ( pos[0] - self.width, pos[1] - self.height )
+
+    def get_tl(self):
+        return self._tl
+
+    def set_tl(self, pos):
+        self._tl = pos
+
+    br = property(get_br, set_br)
+    tl = property(get_tl, set_tl)
+
+    def get_top(self):
+        return self.tl[1]
+
+    def get_bottom(self):
+        return self.br[1]
+
+    def get_left(self):
+        return self.tl[0]
+
+    def get_right(self):
+        return self.br[0]
+
+    top = property(get_top)
+    bottom = property(get_bottom)
+    left = property(get_left)
+    right = property(get_right)
+
+    def get_center(self):
+        return (
+            self._tl[0] + self.width // 2,
+            self._tl[1] + self.height // 2
+        )
+
+    def set_center(self, pos):
+        x = pos[0] - (self.width // 2)
+        y = pos[1] - (self.height // 2)
+        self.tl = (x, y)
+
+    center = property(get_center, set_center)
+
+    def set_size(self, width, height):
+        self.width = width
+        self.height = height
+
+    def overlaps_with(self, rect):
+        pass
+
+
+    def random_point_on_edge(self, direction):
+        if direction == 'top':
+            r = random.randint(1, self.width-1)
+            coord = (self.tl[0] + r, self.top)
+
+        elif direction == 'bottom':
+            r = random.randint(1, self.width-1)
+            coord = (self.tl[0] + r, self.bottom)
+
+        elif direction == 'right':
+            r = random.randint(1, self.height-1)
+            coord = (self.right, self.tl[1]+r)
+
+        elif direction == 'left':
+            r = random.randint(1, self.height-1)
+            coord = (self.left, self.tl[1]+r)
+
+        return coord
 
