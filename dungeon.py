@@ -124,11 +124,14 @@ class Floor():
             x_range = range(seg.start[0], seg.start[0]-seg.length, -1)
             y_range = range(seg.start[1], seg.start[1]+1)
 
+
         for x in x_range:
             for y in y_range:
-                if self.tiles[x][y].type in ("hwall", "vwall"):
+                if self.tiles[x][y].type == "empty":
+                    self.tiles[x][y].set_type("tunnel")
+                elif self.tiles[x][y].type in ("hwall", "vwall"):
                     self.tiles[x][y].set_type("door_closed")
-                elif self.tiles[x][y].type in ("floor"):
+                elif self.tiles[x][y].type in ("floor", "door_closed"):
                     pass
                 else:
                     self.tiles[x][y].set_type("tunnel")
