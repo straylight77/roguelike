@@ -163,10 +163,10 @@ class Rect():
         return f"Rect:{self}"
 
     def get_br(self):
-        return ( self._tl[0] + self.width, self._tl[1] + self.height )
+        return ( self._tl[0] + (self.width-1), self._tl[1] + (self.height-1) )
 
     def set_br(self, pos):
-        self._tl = ( pos[0] - self.width, pos[1] - self.height )
+        self._tl = ( pos[0] - (self.width-1), pos[1] - (self.height-1) )
 
     def get_tl(self):
         return self._tl
@@ -240,21 +240,82 @@ class Rect():
 
 
     def random_point_on_edge(self, direction):
-        if direction == 'top':
-            r = random.randint(1, self.width-1)
+        if direction in ('top', 'N'):
+            r = random.randint(1, self.width-2)
             coord = (self.tl[0] + r, self.top)
 
-        elif direction == 'bottom':
-            r = random.randint(1, self.width-1)
+        elif direction in ('bottom', 'S'):
+            r = random.randint(1, self.width-2)
             coord = (self.tl[0] + r, self.bottom)
 
-        elif direction == 'right':
-            r = random.randint(1, self.height-1)
+        elif direction in ('right', 'E'):
+            r = random.randint(1, self.height-2)
             coord = (self.right, self.tl[1]+r)
 
-        elif direction == 'left':
-            r = random.randint(1, self.height-1)
+        elif direction in ('left', 'W'):
+            r = random.randint(1, self.height-2)
             coord = (self.left, self.tl[1]+r)
 
+        else:
+            raise ValueError
+
         return coord
+
+
+
+
+
+#-------------------------------------------------------------------------
+class LineSeg():
+
+    def __init__(self, start, direction, length):
+        self.start = start
+        self.direction = direction
+        self.length = length
+
+    def __str__(self):
+        return f"{self.start},{self.get_endpoint()}"
+
+    def __repr__(self):
+        return f"LineSeg:{self}"
+
+    def get_endpoint(self):
+        if self.direction in ('up', 'N'):
+            x = self.start[0]
+            y = self.start[1] - (self.length-1)
+
+        elif self.direction in ('down', 'S'):
+            x = self.start[0]
+            y = self.start[1] + (self.length-1)
+
+        elif self.direction in ('right', 'E'):
+            x = self.start[0] + (self.length-1)
+            y = self.start[1]
+
+        elif self.direction in ('left', 'W'):
+            x = self.start[0] - (self.length-1)
+            y = self.start[1]
+
+        else:
+            raise ValueError
+
+        return (x, y)
+
+    def check_empty_space(self, floor):
+        x2, y2 = self.get_endpoint()
+        x1, y1 = self.start
+
+        allow_list = [ "empty", "vwall", "hwall" ]
+
+        for x in range(min(x1, x2), max(x1,x2)+1):
+            for y in range(min(y1, y2), max(y1,y2)+1):
+                #floor.tiles[x][y].set_type("fountain")
+                try:
+                    if not floor.tiles[x][y].type in allow_list:
+                        return False
+                except IndexError:
+                    return False
+        return True
+
+
 

@@ -94,6 +94,7 @@ class Floor():
             self.tiles[start_x+x][start_y].set_type("hwall")
             self.tiles[start_x+x][start_y+dy-1].set_type("hwall")
 
+
     def make_tunnel(self, start_x, start_y, end_x, end_y):
         # TODO: this only works when drawing from top-left to bottom-right.
         # It's also inconsistent, should have length+dir instead of second
@@ -104,4 +105,32 @@ class Floor():
                     self.tiles[x][y].set_type("floor")
                 else:
                     self.tiles[x][y].set_type("tunnel")
+
+
+    def make_tunnel_from_seg(self, seg):
+        if seg.direction in ('up', 'N'):
+            x_range = range(seg.start[0], seg.start[0]+1)
+            y_range = range(seg.start[1], seg.start[1]-seg.length, -1)
+
+        if seg.direction in ('down', 'S'):
+            x_range = range(seg.start[0], seg.start[0]+1)
+            y_range = range(seg.start[1], seg.start[1]+seg.length)
+
+        if seg.direction in ('right', 'E'):
+            x_range = range(seg.start[0], seg.start[0]+seg.length)
+            y_range = range(seg.start[1], seg.start[1]+1)
+
+        if seg.direction in ('left', 'W'):
+            x_range = range(seg.start[0], seg.start[0]-seg.length, -1)
+            y_range = range(seg.start[1], seg.start[1]+1)
+
+        for x in x_range:
+            for y in y_range:
+                if self.tiles[x][y].type in ("hwall", "vwall"):
+                    self.tiles[x][y].set_type("door_closed")
+                elif self.tiles[x][y].type in ("floor"):
+                    pass
+                else:
+                    self.tiles[x][y].set_type("tunnel")
+
 

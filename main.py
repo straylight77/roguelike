@@ -7,6 +7,7 @@ import items
 import monsters
 import sample
 import display
+import generators
 
 # TODO:
 # - convert player.x and player.y to player.pos (tuple)
@@ -85,7 +86,7 @@ def do_player_move(dx, dy):
 
 
 def handle_keys(c, screen):
-    global done
+    global done, floor
     advance_time = True
 
     if c == 'X':
@@ -95,6 +96,15 @@ def handle_keys(c, screen):
     elif c in helpers.DIRECTION_KEY_LOOKUP.keys():
         dx, dy = helpers.DIRECTION_KEY_LOOKUP[c]
         do_player_move(dx, dy)
+
+    elif c == '>':
+        msg.add("You decend the ancient stairs.")
+        floor = dungeon.Floor( floor.depth+1 )
+        player.depth += 1
+        generators.default_random_floor(floor, player)
+
+    elif c == '<':
+        msg.add("Your way is magically blocked!")
 
     elif c == '.':
         msg.add("You rest for a moment.")
@@ -147,49 +157,6 @@ def handle_keys(c, screen):
 
 
 
-def make_random_dungeon2(floor, player):
-    rooms = [ ]
-    num_rooms = 7
-
-    rect = helpers.Rect(
-        width = random.randint(8,15),
-        height = random.randint(5,8)
-    )
-    rect.center = (dungeon.MAP_WIDTH//2, dungeon.MAP_HEIGHT//2)
-    rooms.append(rect)
-    num_rooms -= 1
-
-    for i in range(0, num_rooms):
-
-        retries = 20
-        while (retries > 0):
-            dx = random.randint(6, 12)
-            dy = random.randint(5, 8)
-
-            x = random.randint(0, dungeon.MAP_WIDTH-dx)
-            y = random.randint(0, dungeon.MAP_HEIGHT-dy)
-
-            rect2 = helpers.Rect( (x,y), dx, dy )
-            is_good = True
-            for r in rooms:
-                if rect2.overlaps_with(r):
-                    is_good = False
-
-            if is_good:
-                rooms.append(rect2)
-                retries = 0
-            else:
-                retries -= 1
-
-    for r in rooms:
-        floor.make_room(r.tl[0], r.tl[1], r.width, r.height)
-
-    for r in rooms:
-        pos = r.random_point_on_edge("top")
-        floor.get_tile_at(pos[0], pos[1]).set_type('door_closed')
-
-    player.set_pos(dungeon.MAP_WIDTH//2, dungeon.MAP_HEIGHT//2)
-
 
 #--------------------------------- main() ---------------------------------
 def main(stdscr):
@@ -199,7 +166,10 @@ def main(stdscr):
     #sample.make_test_floor(floor, player)
     #sample.make_test_floor2(floor, player)
     #make_random_dungeon(floor, player)
-    make_random_dungeon2(floor, player)
+    #make_random_dungeon2(floor, player)
+    #generators.make_random_dungeon3(floor, player)
+    #random_floor_rooms_only(floor, player)
+    generators.default_random_floor(floor, player)
 
     msg.add("Welcome! Type 'X' to exit.")
     player.pickup( items.Item("healing potion") )
