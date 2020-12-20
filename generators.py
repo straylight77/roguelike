@@ -3,7 +3,7 @@ import random
 import helpers
 
 def default_random_floor(floor, player):
-    rdg_simple1(floor, player)
+    rdg_simple_v1(floor, player)
 
 
 def random_direction(ignore=None):
@@ -66,7 +66,7 @@ def make_line_segs(pt1, pt2):
 
 #--------------------------------------------------------------------
 # TODO: add padding param to the overlaps_with
-def rdg_simple(floor, player, depth=1, num_rooms=6):
+def rdg_simple_v1(floor, player, depth=1, num_rooms=6):
     rooms = [ ]
     lines = [ ]
 
