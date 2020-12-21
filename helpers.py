@@ -262,7 +262,18 @@ class Rect():
         return coord
 
 
+    def closest_neighbour(self, rect_list):
+        best_distance = 100
+        ret_rect = None
+        for r in rect_list:
+            x2, y2 = r.center
+            x1, y1 = self.center
+            distance = ((x2-x1)**2 + (y2-y1)**2 )**0.5
+            if distance < best_distance and distance > 0:
+                best_distance = distance
+                ret_rect = r
 
+        return ret_rect
 
 
 #-------------------------------------------------------------------------

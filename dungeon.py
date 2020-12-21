@@ -107,7 +107,7 @@ class Floor():
                     self.tiles[x][y].set_type("tunnel")
 
 
-    def make_tunnel_from_seg(self, seg):
+    def make_tunnel_from_seg(self, seg, tunnel_only=False):
         if seg.direction in ('up', 'N'):
             x_range = range(seg.start[0], seg.start[0]+1)
             y_range = range(seg.start[1], seg.start[1]-seg.length, -1)
@@ -127,7 +127,9 @@ class Floor():
 
         for x in x_range:
             for y in y_range:
-                if self.tiles[x][y].type == "empty":
+                if tunnel_only:
+                    self.tiles[x][y].set_type("tunnel")
+                elif self.tiles[x][y].type == "empty":
                     self.tiles[x][y].set_type("tunnel")
                 elif self.tiles[x][y].type in ("hwall", "vwall"):
                     self.tiles[x][y].set_type("door_closed")

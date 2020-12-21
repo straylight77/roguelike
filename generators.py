@@ -4,6 +4,7 @@ import helpers
 
 def default_random_floor(floor, player):
     rdg_simple_v1(floor, player, player.depth, 6)
+    #rdg_simple_v2(floor, player, 6)
 
 
 def random_direction(ignore=None):
@@ -68,6 +69,59 @@ def make_line_segs(pt1, pt2, horiz=0):
     return [seg1, seg2]
 
 
+
+def generate_random_rooms(num_rooms):
+    rooms = [ ]
+
+    rect = random_rect()
+    rect.center = (dungeon.MAP_WIDTH//2, dungeon.MAP_HEIGHT//2)
+    rooms.append(rect)
+    num_rooms -= 1
+
+    for i in range(0, num_rooms):
+
+        retries = 20
+        while (retries > 0):
+            rect2 = random_rect()
+            is_good = True
+            for r in rooms:
+                if rect2.overlaps_with(r):
+                    is_good = False
+
+            if is_good:
+                rooms.append(rect2)
+                retries = 0
+            else:
+                retries -= 1
+
+    return rooms
+
+
+def random_item_from_list(l):
+    i = random.randint(0, len(l)-1)
+    return l[i]
+
+
+#--------------------------------------------------------------------
+def rdg_simple_v2(floor, player, num_rooms=5):
+    rooms = generate_random_rooms(num_rooms)
+    lines = [ ]
+
+    for origin in rooms:
+        dest = origin.closest_neighbour(rooms)
+        segs = make_line_segs(origin.center, dest.center)
+        lines.extend(segs)
+
+    #take the rects and lines and actually make the rooms and corridors
+    for r in rooms:
+        floor.make_room(r.tl[0], r.tl[1], r.width, r.height)
+
+    for l in lines:
+        #floor.make_tunnel_from_seg(l, True)
+        floor.make_tunnel_from_seg(l, False)
+
+
+
 #--------------------------------------------------------------------
 # TODO: add padding param to the overlaps_with
 def rdg_simple_v1(floor, player, depth=1, num_rooms=5):
@@ -110,6 +164,12 @@ def rdg_simple_v1(floor, player, depth=1, num_rooms=5):
                 lines.append(l)
 
 
+    for r in unconnected:
+        dest = r.closest_neighbour(rooms)
+        segs = make_line_segs(r.center, dest.center)
+        lines.extend(segs)
+
+
     #TODO: IDEA!  check if line goes through a corner of a rect
 
     #TODO: IDEA! connect each room only to the closest one
@@ -120,7 +180,7 @@ def rdg_simple_v1(floor, player, depth=1, num_rooms=5):
         floor.make_room(r.tl[0], r.tl[1], r.width, r.height)
 
     for l in lines:
-        floor.make_tunnel_from_seg(l)
+        floor.make_tunnel_from_seg(l, False)
 
     #choose one of the rooms to start in
     idx = random.randint(0, len(rooms)-1)
