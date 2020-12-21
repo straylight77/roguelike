@@ -301,6 +301,31 @@ class LineSeg():
 
         return (x, y)
 
+
+    def overlaps_with_rect(self, rect):
+        x1, y1 = self.start
+        x2, y2 = self.get_endpoint()
+
+        for x in range(min(x1, x2), max(x1,x2)+1):
+            for y in range(min(y1, y2), max(y1,y2)+1):
+                if rect.contains((x,y)):
+                    return True
+        return False
+
+
+    def overlaps_with_edge(self, rect):
+        x1, y1 = self.start
+        #x2, y2 = self.get_endpoint()
+
+        if not self.overlaps_with_rect(rect):
+            return False
+
+        if self.direction in ('E', 'W'):
+            return y1 == rect.top or y1 == rect.bottom
+        else:
+            return x1 == rect.left or x1 == rect.right
+
+
     def check_empty_space(self, floor):
         x2, y2 = self.get_endpoint()
         x1, y1 = self.start

@@ -3,7 +3,7 @@ import random
 import helpers
 
 def default_random_floor(floor, player):
-    rdg_simple_v1(floor, player)
+    rdg_simple_v1(floor, player, player.depth, 6)
 
 
 def random_direction(ignore=None):
@@ -23,10 +23,13 @@ def random_line_seg():
 
 
 def random_rect():
-    rect = helpers.Rect(
-        width = random.randint(8, 15),
-        height = random.randint(5, 8)
-    )
+    dx = random.randint(8, 12)
+    dy = random.randint(6, 8)
+
+    x = random.randint(0, dungeon.MAP_WIDTH-dx)
+    y = random.randint(0, dungeon.MAP_HEIGHT-dy)
+
+    rect = helpers.Rect( (x,y), dx, dy )
     return rect
 
 
@@ -39,34 +42,35 @@ def opposite_direction(direction):
     }
     return lookup[direction]
 
-#TODO: check if we're going to go through any hwalls
-def make_line_segs(pt1, pt2):
+
+def make_line_segs(pt1, pt2, horiz=0):
     x1, y1 = pt1
     x2, y2 = pt2
 
     dx = x2 - x1
     dy = y2 - y1
 
-    if dx > 0:
-        direction = 'E'
+
+    if horiz == 0:
+        direction = 'E' if dx > 0 else 'W'
+        seg1 = helpers.LineSeg((x1, y1), direction, abs(dx))
+
+        direction = 'S' if dy > 0 else 'N'
+        seg2 = helpers.LineSeg((x2, y1), direction, abs(dy))
+
     else:
-        direction = 'W'
+        direction = 'S' if dy > 0 else 'N'
+        seg2 = helpers.LineSeg((x1, y1), direction, abs(dy))
 
-    seg1 = helpers.LineSeg((x1, y1), direction, abs(dx))
-
-    if dy > 0:
-        direction = 'S'
-    else:
-        direction = 'N'
-
-    seg2 = helpers.LineSeg((x2, y1), direction, abs(dy))
+        direction = 'E' if dx > 0 else 'W'
+        seg1 = helpers.LineSeg((x1, y2), direction, abs(dx))
 
     return [seg1, seg2]
 
 
 #--------------------------------------------------------------------
 # TODO: add padding param to the overlaps_with
-def rdg_simple_v1(floor, player, depth=1, num_rooms=6):
+def rdg_simple_v1(floor, player, depth=1, num_rooms=5):
     rooms = [ ]
     lines = [ ]
 
@@ -79,13 +83,7 @@ def rdg_simple_v1(floor, player, depth=1, num_rooms=6):
 
         retries = 20
         while (retries > 0):
-            dx = random.randint(6, 12)
-            dy = random.randint(5, 8)
-
-            x = random.randint(0, dungeon.MAP_WIDTH-dx)
-            y = random.randint(0, dungeon.MAP_HEIGHT-dy)
-
-            rect2 = helpers.Rect( (x,y), dx, dy )
+            rect2 = random_rect()
             is_good = True
             for r in rooms:
                 if rect2.overlaps_with(r):
@@ -97,20 +95,44 @@ def rdg_simple_v1(floor, player, depth=1, num_rooms=6):
             else:
                 retries -= 1
 
-    for r in rooms:
-        floor.make_room(r.tl[0], r.tl[1], r.width, r.height)
-
+    # take the first room and connect it to all the rest
     origin_room = rooms[0]
+    unconnected = [ ]
     for r in rooms[1:]:
         seg_list = make_line_segs(origin_room.center, r.center)
-        lines.extend(seg_list)
+        for l in seg_list:
+            is_good = True
+            for r2 in rooms:
+                if l.overlaps_with_edge(r2):
+                    is_good = False
+                    unconnected.append(r2)
+            if is_good:
+                lines.append(l)
+
+
+    #TODO: IDEA!  check if line goes through a corner of a rect
+
+    #TODO: IDEA! connect each room only to the closest one
+
+
+    #take the rects and lines and actually make the rooms and corridors
+    for r in rooms:
+        floor.make_room(r.tl[0], r.tl[1], r.width, r.height)
 
     for l in lines:
         floor.make_tunnel_from_seg(l)
 
+    #choose one of the rooms to start in
     idx = random.randint(0, len(rooms)-1)
-    start_room = rooms[idx]
-    player.set_pos(start_room.center[0], start_room.center[1])
+    x, y = rooms[idx].center
+    player.set_pos(x, y)
+    floor.tiles[x][y].set_type("stairs_up")
+    rooms.remove( rooms[idx] )
+
+    #choose one of the rooms for down stairs
+    idx = random.randint(0, len(rooms)-1)
+    x, y = rooms[idx].center
+    floor.tiles[x][y].set_type("stairs_down")
 
 
 
