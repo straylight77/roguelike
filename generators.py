@@ -3,7 +3,7 @@ import random
 import helpers
 
 def default_random_floor(floor, player):
-    rdg_simple_v1(floor, player, player.depth, 6)
+    rdg_simple_v1(floor, player, player.depth, 8)
     #rdg_simple_v2(floor, player, 6)
 
 
@@ -70,8 +70,10 @@ def make_line_segs(pt1, pt2, horiz=0):
 
 
 
-def generate_random_rooms(num_rooms):
+def generate_random_rooms(num_rooms, start_list = None):
     rooms = [ ]
+    if start_list is not None:
+        rooms.extend(start_list)
 
     rect = random_rect()
     rect.center = (dungeon.MAP_WIDTH//2, dungeon.MAP_HEIGHT//2)
@@ -125,55 +127,26 @@ def rdg_simple_v2(floor, player, num_rooms=5):
 #--------------------------------------------------------------------
 # TODO: add padding param to the overlaps_with
 def rdg_simple_v1(floor, player, depth=1, num_rooms=5):
-    rooms = [ ]
+    rooms = generate_random_rooms(num_rooms)
     lines = [ ]
 
-    rect = random_rect()
-    rect.center = (dungeon.MAP_WIDTH//2, dungeon.MAP_HEIGHT//2)
-    rooms.append(rect)
-    num_rooms -= 1
-
-    for i in range(0, num_rooms):
-
-        retries = 20
-        while (retries > 0):
-            rect2 = random_rect()
-            is_good = True
-            for r in rooms:
-                if rect2.overlaps_with(r):
-                    is_good = False
-
-            if is_good:
-                rooms.append(rect2)
-                retries = 0
-            else:
-                retries -= 1
-
     # take the first room and connect it to all the rest
-    origin_room = rooms[0]
+    origin = rooms[0]
     unconnected = [ ]
-    for r in rooms[1:]:
-        seg_list = make_line_segs(origin_room.center, r.center)
+    connected = [ ]
+    for dest in rooms[1:]:
+        seg_list = make_line_segs(origin.center, dest.center)
+        is_good = True
         for l in seg_list:
-            is_good = True
             for r2 in rooms:
                 if l.overlaps_with_edge(r2):
                     is_good = False
-                    unconnected.append(r2)
-            if is_good:
-                lines.append(l)
-
-
-    for r in unconnected:
-        dest = r.closest_neighbour(rooms)
-        segs = make_line_segs(r.center, dest.center)
-        lines.extend(segs)
-
-
-    #TODO: IDEA!  check if line goes through a corner of a rect
-
-    #TODO: IDEA! connect each room only to the closest one
-
+        if is_good:
+            lines.extend(seg_list)
+            connected.append(dest)
+        else:
+            unconnected.append(dest)
+            rooms.remove(dest)
 
     #take the rects and lines and actually make the rooms and corridors
     for r in rooms:
@@ -193,9 +166,6 @@ def rdg_simple_v1(floor, player, depth=1, num_rooms=5):
     idx = random.randint(0, len(rooms)-1)
     x, y = rooms[idx].center
     floor.tiles[x][y].set_type("stairs_down")
-
-
-
 
 
 
