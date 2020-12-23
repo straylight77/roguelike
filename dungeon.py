@@ -77,6 +77,9 @@ class Floor():
     def get_tile_at(self, x, y):
         return self.tiles[x][y]
 
+    def get_tile(self, pos):
+        return self.tiles[pos[0]][pos[1]]
+
 
     def make_room(self, start_x, start_y, dx, dy):
         # create the floor tiles
