@@ -5,6 +5,7 @@ import helpers
 def default_random_floor(floor, player):
     rdg_simple_v1(floor, player, player.depth, 8)
     #rdg_simple_v2(floor, player, 6)
+    #rdg_simple_v3(floor, player, player.depth, 8)
 
 
 def random_direction(ignore=None):
@@ -110,6 +111,53 @@ def check_line_segs_overlap(segs, rects):
     return is_good
 
 
+
+#--------------------------------------------------------------------
+def rdg_simple_v3(floor, player, depth=1, num_rooms=5):
+    rooms = [ ]
+    lines = [ ]
+
+    new_room = get_random_room()
+    rooms.append(new_room)
+    num_rooms -= 1
+
+    for i in range(1, num_rooms):
+        retries = 10
+        while retries > 0:
+            new_room = get_random_room(rooms)
+            if new_room is None:
+                retries -= 1
+                break
+            dest = new_room.closest_neighbour(rooms)
+            seg_list = make_line_segs(new_room.center, dest.center)
+            if check_line_segs_overlap(seg_list, rooms):
+                rooms.append(new_room)
+                lines.extend(seg_list)
+                retries = 0
+            else:
+                retries -= 1
+
+    #take the rects and lines and actually make the rooms and corridors
+    for r in rooms:
+        floor.make_room(r.tl[0], r.tl[1], r.width, r.height)
+
+    for l in lines:
+        floor.make_tunnel_from_seg(l)
+
+    #choose one of the rooms to start in
+    idx = random.randint(0, len(rooms)-1)
+    x, y = rooms[idx].center
+    player.set_pos(x, y)
+    floor.tiles[x][y].set_type("stairs_up")
+    rooms.remove( rooms[idx] )
+
+    #choose one of the rooms for down stairs
+    idx = random.randint(0, len(rooms)-1)
+    x, y = rooms[idx].center
+    floor.tiles[x][y].set_type("stairs_down")
+
+
+
 #--------------------------------------------------------------------
 def rdg_simple_v1(floor, player, depth=1, num_rooms=5):
     rooms = generate_random_rooms(num_rooms)
@@ -127,7 +175,7 @@ def rdg_simple_v1(floor, player, depth=1, num_rooms=5):
             rooms.remove(dest)
 
     round2 = [ ]
-    for i in range(1, unconnected):
+    for i in range(0, unconnected):
         retries = 10
         while retries > 0:
             new_room = get_random_room(rooms)
@@ -136,15 +184,13 @@ def rdg_simple_v1(floor, player, depth=1, num_rooms=5):
                 break
             dest = new_room.closest_neighbour(rooms)
             seg_list = make_line_segs(new_room.center, dest.center)
-            if check_line_segs_overlap(seg_list, rooms):
+            if check_line_segs_overlap(lines + seg_list, rooms):
                 rooms.append(new_room)
                 round2.append(new_room)
                 lines.extend(seg_list)
                 retries = 0
             else:
                 retries -= 1
-
-
 
     #take the rects and lines and actually make the rooms and corridors
     for r in rooms:
@@ -153,10 +199,10 @@ def rdg_simple_v1(floor, player, depth=1, num_rooms=5):
     for l in lines:
         floor.make_tunnel_from_seg(l)
 
+    #just for debugging
     for r in round2:
         x, y = r.center
         floor.tiles[x][y].set_type("fountain")
-
 
     #choose one of the rooms to start in
     idx = random.randint(0, len(rooms)-1)
