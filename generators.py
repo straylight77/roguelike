@@ -184,7 +184,7 @@ def rdg_simple_v1(floor, player, depth=1, num_rooms=5):
                 break
             dest = new_room.closest_neighbour(rooms)
             seg_list = make_line_segs(new_room.center, dest.center)
-            if check_line_segs_overlap(lines + seg_list, rooms):
+            if check_line_segs_overlap(lines + seg_list, rooms + [new_room]):
                 rooms.append(new_room)
                 round2.append(new_room)
                 lines.extend(seg_list)
