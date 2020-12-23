@@ -15,14 +15,6 @@ def random_direction(ignore=None):
     return dirs[i]
 
 
-def random_feature():
-    return "tunnel"
-
-
-def random_line_seg():
-    pass
-
-
 def random_rect():
     dx = random.randint(8, 12)
     dy = random.randint(6, 8)
@@ -87,7 +79,7 @@ def generate_random_rooms(num_rooms, start_list = None):
             rect2 = random_rect()
             is_good = True
             for r in rooms:
-                if rect2.overlaps_with(r):
+                if rect2.overlaps_with(r, 1):
                     is_good = False
 
             if is_good:
@@ -125,7 +117,6 @@ def rdg_simple_v2(floor, player, num_rooms=5):
 
 
 #--------------------------------------------------------------------
-# TODO: add padding param to the overlaps_with
 def rdg_simple_v1(floor, player, depth=1, num_rooms=5):
     rooms = generate_random_rooms(num_rooms)
     lines = [ ]
@@ -153,7 +144,7 @@ def rdg_simple_v1(floor, player, depth=1, num_rooms=5):
         floor.make_room(r.tl[0], r.tl[1], r.width, r.height)
 
     for l in lines:
-        floor.make_tunnel_from_seg(l, False)
+        floor.make_tunnel_from_seg(l)
 
     #choose one of the rooms to start in
     idx = random.randint(0, len(rooms)-1)

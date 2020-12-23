@@ -211,31 +211,29 @@ class Rect():
         self.width = width
         self.height = height
 
-    def get_corners(self):
-        pts = [
-            self.tl,
-            self.br,
-            (self.right, self.top),
-            (self.left, self.bottom)
-        ]
-        return pts
+    def get_corners(self, padding = 0):
+        tl = (self.tl[0] - padding , self.tl[1] - padding)
+        br = (self.br[0] + padding , self.br[1] + padding)
+        tr = (self.right + padding , self.top - padding)
+        bl = (self.left - padding  , self.bottom + padding)
+
+        return [ tl, br, tr, bl ]
 
 
     def contains(self, pt):
         x, y = pt
         if (self.left <= x <= self.right) and (self.top <= y <= self.bottom):
-            return True
+            ret_val = True
         else:
-            return False
+            ret_val = False
+        return ret_val
 
 
-    def overlaps_with(self, rect):
-        for pt in self.get_corners():
-            if rect.contains(pt):
-                return True
-        for pt in rect.get_corners():
-            if self.contains(pt):
-                return True
+    def overlaps_with(self, rect, padding = 0):
+        for x in range(self.left-padding, self.right+1+padding):
+            for y in range(self.top-padding, self.bottom+1+padding):
+                if rect.contains((x,y)):
+                    return True
         return False
 
 
