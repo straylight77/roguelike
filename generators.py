@@ -1,5 +1,6 @@
 import dungeon
 import monsters
+import items
 import random
 import helpers
 
@@ -133,6 +134,21 @@ def random_monster_list(rect, depth=1):
     return mon_list
 
 
+def random_item_list(rect, depth):
+    item_list = [ ]
+    pct = random.randint(0, 100)
+    x = random.randint(rect.left+1, rect.right-1)
+    y = random.randint(rect.top+1, rect.bottom-1)
+    item_list.append( items.Item("gold", x, y) )
+    if pct <= 50:
+        pass
+    elif 51 <= pct <= 75:
+        x = random.randint(rect.left+1, rect.right-1)
+        y = random.randint(rect.top+1, rect.bottom-1)
+        item_list.append( items.Item("healing potion", x, y) )
+    return item_list
+
+
 def populate_rooms(floor, player, rect_list, depth = 1):
     rooms = rect_list.copy()
 
@@ -151,6 +167,12 @@ def populate_rooms(floor, player, rect_list, depth = 1):
         mon_list = random_monster_list(r, depth)
         for m in mon_list:
             floor.add_monster(m)
+
+    for r in rooms:
+        item_list = random_item_list(r, depth)
+        for i in item_list:
+            floor.add_item(i)
+
 
 
 

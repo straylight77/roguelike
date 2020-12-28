@@ -3,16 +3,15 @@ import helpers
 
 
 #TODO: drop pct
-#TODO: add xp
 #TODO: list of bosses
 #TODO: move to a yaml file?
 MONSTERS = {
     # name =>    min, max,    ch, hp, mp, ac, p,   xp
     "rat":       (1,   2,   ('r',  2,  0,  8,  1,  25)),
     "centipede": (1,   3,   ('c',  1,  0,  8,  1,  25)),
-    "skeleton":  (2,   5,   ('k',  4,  0, 12,  2,  50)),
-    "zombie":    (2,   5,   ('z',  8,  0, 10,  2,  50)),
-    "demon":     (3,   10,  ('d',  8,  0, 12,  3, 100)),
+    "skeleton":  (2,   8,   ('k',  4,  0, 12,  2,  50)),
+    "zombie":    (2,   8,   ('z',  8,  0, 10,  2,  50)),
+    "ghoul":     (3,   8,   ('G',  8,  0, 12,  3, 100)),
 }
 
 
