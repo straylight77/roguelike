@@ -21,7 +21,7 @@ import generators
 # - shooting and throwing
 # - field of view (visible, explored)
 # - colors!
-# - random levels, 5-room dungeon?
+# X random levels, 5-room dungeon?
 # - levelling up
 # - save game, high score list, player name, death screen
 
@@ -98,13 +98,21 @@ def handle_keys(c, screen):
         do_player_move(dx, dy)
 
     elif c == '>':
-        msg.add("You decend the ancient stairs.")
-        floor = dungeon.Floor( floor.depth+1 )
-        player.depth += 1
-        generators.default_random_floor(floor, player)
+        t = floor.get_tile_at(player.x, player.y)
+        if t.type == 'stairs_down':
+            msg.add("You decend the ancient stairs.")
+            floor = dungeon.Floor( floor.depth+1 )
+            player.depth += 1
+            generators.default_random_floor(floor, player)
+        else:
+            msg.add("You don't see any stairs down here.")
 
     elif c == '<':
-        msg.add("Your way is magically blocked!")
+        t = floor.get_tile_at(player.x, player.y)
+        if t.type == 'stairs_up':
+            msg.add("Your way is magically blocked!")
+        else:
+            msg.add("You don't see any stairs up here.")
 
     elif c == '.':
         msg.add("You rest for a moment.")
@@ -162,13 +170,6 @@ def handle_keys(c, screen):
 def main(stdscr):
     global done
 
-
-    #sample.make_test_floor(floor, player)
-    #sample.make_test_floor2(floor, player)
-    #make_random_dungeon(floor, player)
-    #make_random_dungeon2(floor, player)
-    #generators.make_random_dungeon3(floor, player)
-    #random_floor_rooms_only(floor, player)
     generators.default_random_floor(floor, player)
 
     msg.add("Welcome! Type 'X' to exit.")

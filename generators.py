@@ -46,7 +46,6 @@ def make_line_segs(pt1, pt2, horiz=0):
     dx = x2 - x1
     dy = y2 - y1
 
-
     if horiz == 0:
         direction = 'E' if dx > 0 else 'W'
         seg1 = helpers.LineSeg((x1, y1), direction, abs(dx))
