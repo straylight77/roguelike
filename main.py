@@ -62,7 +62,7 @@ def do_player_move(dx, dy):
         msg.add(combat_msg)
         if m2.hp <= 0:
             msg.add(f"You have defeated the {m2}!")
-            player.xp += 50
+            player.xp += m2.xp
             floor.remove_monster(m2)
 
     elif t2.type == "door_closed":

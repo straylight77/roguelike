@@ -7,12 +7,12 @@ import helpers
 #TODO: list of bosses
 #TODO: move to a yaml file?
 MONSTERS = {
-    # name =>    min, max,    ch, hp, mp, ac, pb
-    "rat":       (1,   2,   ('r',  2,  0,  8,  1)),
-    "centipede": (1,   3,   ('c',  1,  0,  8,  1)),
-    "skeleton":  (2,   5,   ('k',  4,  0, 12,  2)),
-    "zombie":    (2,   5,   ('z',  8,  0, 10,  2)),
-    "demon":     (3,   10,  ('d',  8,  0, 12,  3)),
+    # name =>    min, max,    ch, hp, mp, ac, p,   xp
+    "rat":       (1,   2,   ('r',  2,  0,  8,  1,  25)),
+    "centipede": (1,   3,   ('c',  1,  0,  8,  1,  25)),
+    "skeleton":  (2,   5,   ('k',  4,  0, 12,  2,  50)),
+    "zombie":    (2,   5,   ('z',  8,  0, 10,  2,  50)),
+    "demon":     (3,   10,  ('d',  8,  0, 12,  3, 100)),
 }
 
 
@@ -87,8 +87,9 @@ class Monster(Creature):
 
     def __init__(self, name, x, y):
         stats = MONSTERS[name][2]
-        char, hp, mp, ac, prof = stats
+        char, hp, mp, ac, prof, xp = stats
         self.name = name
+        self.xp = xp
         super().__init__(char, hp, mp, ac, prof)
         self.set_pos(x, y)
         self.last_player_pos = None
