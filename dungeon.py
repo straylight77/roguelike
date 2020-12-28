@@ -127,7 +127,6 @@ class Floor():
             x_range = range(seg.start[0], seg.start[0]-seg.length, -1)
             y_range = range(seg.start[1], seg.start[1]+1)
 
-
         for x in x_range:
             for y in y_range:
                 if tunnel_only:

@@ -112,10 +112,18 @@ def check_line_segs_overlap(segs, rects):
     return is_good
 
 
-def random_monster_list(rect):
+def get_available_monsters(depth):
+    name_list = [ ]
+    for name, rec in monsters.MONSTERS.items():
+        if rec[0] <= depth <= rec[1]:
+            name_list.append(name)
+    return name_list
+
+
+def random_monster_list(rect, depth=1):
     mon_list = [ ]
-    mon_name_list = list(monsters.MONSTERS)
-    qty = random.randint(1, 2)
+    mon_name_list = get_available_monsters(depth)
+    qty = random.randint(0, 2)
     while qty > 0:
         x = random.randint(rect.left+1, rect.right-1)
         y = random.randint(rect.top+1, rect.bottom-1)
@@ -140,7 +148,7 @@ def populate_rooms(floor, player, rect_list, depth = 1):
     floor.get_tile(r.center).set_type("stairs_down")
 
     for r in rooms:
-        mon_list = random_monster_list(r)
+        mon_list = random_monster_list(r, depth)
         for m in mon_list:
             floor.add_monster(m)
 
