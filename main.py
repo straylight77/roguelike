@@ -11,6 +11,10 @@ import generators
 
 # TODO:
 # - convert player.x and player.y to player.pos (tuple)
+#   - Floor.get_tile_at()
+#   - Floor.get_monster_at()
+#   - Floor.get_item_at()
+#   - Player.set_pos
 # X new Display class for all curses and draw_* stuff?
 # X items and inventory
 #   X gold (pickup, drop)
@@ -202,14 +206,16 @@ def main(stdscr):
         # other updates
 
         # check for player death
-        #if player.hp <= 0:
-        #    advance_time = False
-        #    stdscr.move(0, 0)
-        #    stdscr.clrtoeol()
-        #    stdscr.addstr(0, 0, "You have died.  Game over! (press a key)")
-        #    stdscr.refresh()
-        #    stdscr.getkey()
-        #    done = True
+        if player.hp <= 0:
+            advance_time = False
+            score = player.xp + player.gold
+            stdscr.move(0, 0)
+            stdscr.clrtoeol()
+            s = f"You have died.  Game over! (press a key)"
+            stdscr.addstr(0, 0, s)
+            stdscr.refresh()
+            stdscr.getkey()
+            done = True
 
 
 
@@ -217,4 +223,8 @@ def main(stdscr):
 #-------------------------------------------------------------
 if __name__ == "__main__":
     curses.wrapper(main)
+
+score = player.xp + player.gold
+s = f"Thanks for playing!  Final score: {score}"
+print(s)
 
