@@ -224,7 +224,7 @@ def main(stdscr):
 if __name__ == "__main__":
     curses.wrapper(main)
 
-score = player.xp + player.gold
-s = f"Thanks for playing!  Final score: {score}"
-print(s)
+    score = player.xp + player.gold
+    s = f"Thanks for playing!  Final score: {score}"
+    print(s)
 
