@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python 
 import curses
 import random
 import helpers
