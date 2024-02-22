@@ -23,6 +23,11 @@ func (dl *DungeonLevel) SetTile(x, y int, id int) {
 }
 
 // -----------------------------------------------------------------------
+func (dl *DungeonLevel) Tile(x, y int) int {
+	return dl[x][y]
+}
+
+// -----------------------------------------------------------------------
 func (dl *DungeonLevel) Clear() {
 	for x, col := range dl {
 		for y := range col {
@@ -44,8 +49,11 @@ func (dl *DungeonLevel) CreateRoom(x1, y1, dx, dy int) {
 		dl[x1+dx-1][y] = T_WALL
 	}
 	// floor
-	// TODO
-
+	for x := x1 + 1; x < x1+dx-1; x++ {
+		for y := y1 + 1; y < y1+dy-1; y++ {
+			dl[x][y] = T_FLOOR
+		}
+	}
 }
 
 // -----------------------------------------------------------------------

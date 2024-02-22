@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 const (
@@ -18,6 +20,7 @@ type Pos struct {
 }
 
 type Game struct {
+	keys    []ebiten.Key
 	dungeon *DungeonLevel
 	player  Pos
 }
@@ -35,14 +38,47 @@ func NewGame() *Game {
 	player_pos := Pos{5, 5}
 
 	g := &Game{
-		dungeon,
-		player_pos,
+		dungeon: dungeon,
+		player:  player_pos,
 	}
 	return g
 }
 
 // -----------------------------------------------------------------------
+func MovePlayer(p *Pos, d *DungeonLevel, dx, dy int) {
+	switch id := d.Tile(p.x+dx, p.y+dy); id {
+	case 0:
+		return
+	case T_WALL:
+		return
+	case T_DOOR_CL:
+		d.SetTile(p.x+dx, p.y+dy, T_DOOR_OP)
+	default:
+		p.x += dx
+		p.y += dy
+	}
+}
+
+// -----------------------------------------------------------------------
 func (g *Game) Update() error {
+	g.keys = inpututil.AppendJustPressedKeys(g.keys[:0])
+
+	for _, p := range g.keys {
+		switch p {
+		case ebiten.KeyEscape:
+			return ebiten.Termination
+		case ebiten.KeyLeft:
+			MovePlayer(&g.player, g.dungeon, -1, 0)
+		case ebiten.KeyRight:
+			MovePlayer(&g.player, g.dungeon, 1, 0)
+		case ebiten.KeyUp:
+			MovePlayer(&g.player, g.dungeon, 0, -1)
+		case ebiten.KeyDown:
+			MovePlayer(&g.player, g.dungeon, 0, 1)
+		default:
+			fmt.Println(p)
+		}
+	}
 	return nil
 }
 
