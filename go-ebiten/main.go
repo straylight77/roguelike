@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	SCREEN_MAX_X, SCREEN_MAX_Y = 1280, 720
-	MAP_MAX_X, MAP_MAX_Y       = 80, 25
+	ScreenMaxX, ScreenMaxY = 1280, 720
+	MapMaxX, MapMaxY       = 80, 25
 )
 
 var sheet *Spritesheet
@@ -26,7 +26,14 @@ type Game struct {
 func NewGame() *Game {
 	dungeon := NewDungeonLevel()
 	dungeon.CreateRoom(3, 3, 8, 6)
+	dungeon.CreatePath(7, 9, SOUTH, 5)
+	dungeon.CreatePath(7, 13, EAST, 5)
+	dungeon.CreateRoom(12, 10, 10, 10)
+	dungeon.SetTile(7, 8, T_DOOR_OP)
+	dungeon.SetTile(12, 13, T_DOOR_OP)
+	dungeon.SetTile(10, 5, T_DOOR_CL)
 	player_pos := Pos{5, 5}
+
 	g := &Game{
 		dungeon,
 		player_pos,
@@ -42,22 +49,20 @@ func (g *Game) Update() error {
 // -----------------------------------------------------------------------
 func (g *Game) Draw(screen *ebiten.Image) {
 
-	for x, row := range g.dungeon {
-		for y, id := range row {
+	// draw dungeon tiles
+	for x, col := range g.dungeon {
+		for y, id := range col {
 			DrawTile(screen, sheet.Tile(id), x, y)
 		}
 	}
 
+	// draw player
 	DrawTile(screen, sheet.Tile(T_HERO), g.player.x, g.player.y)
-
-	//DrawTile(screen, sheet.Tile(T_PATH), 3, 6)
-	//DrawTile(screen, sheet.Tile(T_PATH), 3, 7)
-	//DrawTile(screen, sheet.Tile(T_PATH), 4, 7)
 }
 
 // -----------------------------------------------------------------------
 func (g *Game) Layout(outsideW, outsideH int) (screenWidth, screenHeight int) {
-	return SCREEN_MAX_X, SCREEN_MAX_Y
+	return ScreenMaxX, ScreenMaxY
 }
 
 // -----------------------------------------------------------------------
@@ -71,7 +76,7 @@ func DrawTile(screen *ebiten.Image, img *ebiten.Image, x int, y int) {
 func main() {
 	sheet = NewSpritesheet("colored_packed.png", 16)
 	g := NewGame()
-	ebiten.SetWindowSize(SCREEN_MAX_X, SCREEN_MAX_Y)
+	ebiten.SetWindowSize(ScreenMaxX, ScreenMaxY)
 	ebiten.SetWindowTitle("1-Bit Rogue")
 
 	if err := ebiten.RunGame(g); err != nil {

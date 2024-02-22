@@ -1,6 +1,13 @@
 package main
 
-type DungeonLevel [MAP_MAX_X][MAP_MAX_Y]int
+const (
+	NORTH = iota
+	EAST
+	SOUTH
+	WEST
+)
+
+type DungeonLevel [MapMaxX][MapMaxY]int
 
 // -----------------------------------------------------------------------
 func NewDungeonLevel() *DungeonLevel {
@@ -11,9 +18,14 @@ func (dl *DungeonLevel) AddCoords() {
 }
 
 // -----------------------------------------------------------------------
+func (dl *DungeonLevel) SetTile(x, y int, id int) {
+	dl[x][y] = id
+}
+
+// -----------------------------------------------------------------------
 func (dl *DungeonLevel) Clear() {
-	for x, row := range dl {
-		for y := range row {
+	for x, col := range dl {
+		for y := range col {
 			dl[x][y] = 0
 		}
 	}
@@ -34,4 +46,30 @@ func (dl *DungeonLevel) CreateRoom(x1, y1, dx, dy int) {
 	// floor
 	// TODO
 
+}
+
+// -----------------------------------------------------------------------
+func (dl *DungeonLevel) CreatePath(x1, y1 int, dir int, length int) {
+	dx, dy := getDirectionCoords(dir)
+	x, y := x1, y1
+	for i := length; i > 0; i-- {
+		dl[x][y] = T_PATH
+		x += dx
+		y += dy
+	}
+}
+
+func getDirectionCoords(dir int) (int, int) {
+	dx, dy := 0, 0
+	switch dir {
+	case NORTH:
+		dy = -1
+	case SOUTH:
+		dy = 1
+	case EAST:
+		dx = 1
+	case WEST:
+		dx = -1
+	}
+	return dx, dy
 }
