@@ -67,6 +67,18 @@ func (dl *DungeonLevel) CreatePath(x1, y1 int, dir int, length int) {
 	}
 }
 
+// -----------------------------------------------------------------------
+func (dl *DungeonLevel) Generate() Pos {
+	dl.CreateRoom(3, 3, 8, 6)
+	dl.CreatePath(7, 9, SOUTH, 5)
+	dl.CreatePath(7, 13, EAST, 5)
+	dl.CreateRoom(12, 10, 10, 10)
+	dl.SetTile(7, 8, T_DOOR_OP)
+	dl.SetTile(12, 13, T_DOOR_OP)
+	dl.SetTile(10, 5, T_DOOR_CL)
+	return Pos{5, 5}
+}
+
 func getDirectionCoords(dir int) (int, int) {
 	dx, dy := 0, 0
 	switch dir {
