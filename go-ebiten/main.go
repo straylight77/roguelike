@@ -35,35 +35,30 @@ type Pos struct {
 type Game struct {
 	keys     []ebiten.Key
 	font     font.Face
-	dungeon  *DungeonLevel
-	player   Pos
-	monsters [MapMaxX][MapMaxY]*Monster
 	messages MessageQueue
+	player   Pos
+	dungeon  *DungeonLayer
+	monsters MonsterLayer
 }
 
 // -----------------------------------------------------------------------
 func NewGame() *Game {
 	font := loadFont("assets/fantasquesansmono-regular.otf", FontSize)
 
-	dungeon := NewDungeonLevel()
+	dungeon := NewDungeonLayer()
 	player_pos := dungeon.Generate()
 
-	//TODO: refactor dungeon, monsters, player into GameState object
-
-	mq := MessageQueue{}
-	//mq.Add("---------1---------2---------3---------4---------5---------6---------7---------8---------9")
-	mq.Add("Hello Rodney, welcome to the Dungeons of Doom!")
-
 	g := &Game{
-		dungeon:  dungeon,
-		player:   player_pos,
-		font:     font,
-		messages: mq,
-		monsters: [MapMaxX][MapMaxY]*Monster{},
+		font:    font,
+		dungeon: dungeon,
+		player:  player_pos,
 	}
 
 	g.monsters[14][12] = NewMonster(0)
 	g.monsters[7][5] = NewMonster(1)
+
+	//g.messages.Add("---------1---------2---------3---------4---------5---------6---------7---------8---------9")
+	g.messages.Add("Hello Rodney, welcome to the Dungeons of Doom!")
 
 	return g
 }

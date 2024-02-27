@@ -1,12 +1,5 @@
 package main
 
-type Monster struct {
-	Name   string
-	TileID int
-	HP     int
-	AC     int
-}
-
 type MonsterTemplate struct {
 	Name   string
 	TileID int
@@ -19,6 +12,14 @@ var MonsterLib = []MonsterTemplate{
 	{"stirge", T_STIRGE, "1", 12},
 }
 
+// -----------------------------------------------------------------------
+type Monster struct {
+	Name   string
+	TileID int
+	HP     int
+	AC     int
+}
+
 func NewMonster(id int) *Monster {
 
 	mt := MonsterLib[id]
@@ -29,3 +30,6 @@ func NewMonster(id int) *Monster {
 	}
 	return m
 }
+
+// -----------------------------------------------------------------------
+type MonsterLayer [MapMaxX][MapMaxY]*Monster

@@ -7,28 +7,25 @@ const (
 	WEST
 )
 
-type DungeonLevel [MapMaxX][MapMaxY]int
+type DungeonLayer [MapMaxX][MapMaxY]int
 
 // -----------------------------------------------------------------------
-func NewDungeonLevel() *DungeonLevel {
-	return &DungeonLevel{}
-}
-
-func (dl *DungeonLevel) AddCoords() {
+func NewDungeonLayer() *DungeonLayer {
+	return &DungeonLayer{}
 }
 
 // -----------------------------------------------------------------------
-func (dl *DungeonLevel) SetTile(x, y int, id int) {
+func (dl *DungeonLayer) SetTile(x, y int, id int) {
 	dl[x][y] = id
 }
 
 // -----------------------------------------------------------------------
-func (dl *DungeonLevel) Tile(x, y int) int {
+func (dl *DungeonLayer) Tile(x, y int) int {
 	return dl[x][y]
 }
 
 // -----------------------------------------------------------------------
-func (dl *DungeonLevel) Clear() {
+func (dl *DungeonLayer) Clear() {
 	for x, col := range dl {
 		for y := range col {
 			dl[x][y] = 0
@@ -37,7 +34,7 @@ func (dl *DungeonLevel) Clear() {
 }
 
 // -----------------------------------------------------------------------
-func (dl *DungeonLevel) CreateRoom(x1, y1, dx, dy int) {
+func (dl *DungeonLayer) CreateRoom(x1, y1, dx, dy int) {
 	// horizontal walls
 	for x := x1; x < x1+dx; x++ {
 		dl[x][y1] = T_WALL
@@ -57,7 +54,7 @@ func (dl *DungeonLevel) CreateRoom(x1, y1, dx, dy int) {
 }
 
 // -----------------------------------------------------------------------
-func (dl *DungeonLevel) CreatePath(x1, y1 int, dir int, length int) {
+func (dl *DungeonLayer) CreatePath(x1, y1 int, dir int, length int) {
 	dx, dy := getDirectionCoords(dir)
 	x, y := x1, y1
 	for i := length; i > 0; i-- {
@@ -68,7 +65,7 @@ func (dl *DungeonLevel) CreatePath(x1, y1 int, dir int, length int) {
 }
 
 // -----------------------------------------------------------------------
-func (dl *DungeonLevel) Generate() Pos {
+func (dl *DungeonLayer) Generate() Pos {
 	dl.CreateRoom(3, 3, 8, 6)
 	dl.CreatePath(7, 9, SOUTH, 5)
 	dl.CreatePath(7, 13, EAST, 5)

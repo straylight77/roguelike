@@ -78,9 +78,7 @@ func NewSpritesheet(fname string, tileSize int) *Spritesheet {
 
 // -----------------------------------------------------------------------
 func (s *Spritesheet) Tile(id int) *ebiten.Image {
-	if id == 0 {
-		id = 0
-	} else {
+	if id != 0 {
 		id = id - 1 // tile nubmers start at 1
 	}
 	sx := (id % s.TileXCount) * s.TileSize
