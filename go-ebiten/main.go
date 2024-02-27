@@ -31,7 +31,7 @@ var font1 font.Face
 
 type Game struct {
 	keys     []ebiten.Key
-	messages MessageQueue
+	messages MessageLog
 	player   Player
 	dungeon  DungeonLayer
 	monsters MonsterLayer
@@ -79,22 +79,6 @@ func (g *Game) Update() error {
 }
 
 // -----------------------------------------------------------------------
-func (g *Game) InfoPanelString() []string {
-	// draw the info text side panel
-	info := []string{
-		fmt.Sprintf("Name:  Rodney"),
-		fmt.Sprintf("Str:   16 / 16"),
-		fmt.Sprintf("HP:    14 / 20"),
-		fmt.Sprintf("Exp:    2 / 14"),
-		"\n",
-		fmt.Sprintf("Gold:  4"),
-		fmt.Sprintf("Depth: 1"),
-		fmt.Sprintf("Pos:   %d,%d", g.player.X, g.player.Y),
-	}
-	return info
-}
-
-// -----------------------------------------------------------------------
 func (g *Game) Draw(screen *ebiten.Image) {
 
 	// draw dungeon tiles
@@ -112,13 +96,13 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// draw player
 	DrawTile(screen, sheet.Tile(T_HERO), g.player.X, g.player.Y)
 
-	// draw the message queue panel
+	// draw the messages panel
 	for i, m := range g.messages.Tail(5) {
 		text.Draw(screen, m, font1, 0, MapMaxY*TileSize+FontSize+i*(FontSize+3), color.White)
 	}
 
 	// draw the info panel
-	for i, s := range g.InfoPanelString() {
+	for i, s := range g.player.InfoPanelString() {
 		text.Draw(screen, s, font1, MapMaxX*TileSize, FontSize+i*(FontSize+5), color.White)
 	}
 }
@@ -140,7 +124,8 @@ func (g *Game) MovePlayer(dx, dy int) {
 	}
 
 	// check dungeon tile
-	id := g.dungeon.Tile(destX, destY)
+	// TODO: refactor to check bool in Tile struct instead of the id
+	id := g.dungeon.TileAt(destX, destY)
 	switch id {
 	case 0,
 		T_WALL:

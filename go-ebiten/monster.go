@@ -1,5 +1,7 @@
 package main
 
+import "math"
+
 type MonsterTemplate struct {
 	Name   string
 	TileID int
@@ -72,4 +74,10 @@ func (ml MonsterLayer) MonsterAt(x, y int) *Monster {
 		}
 	}
 	return nil
+}
+
+func calculateDistance(x1, y1, x2, y2 int) float64 {
+	dx := float64(x2 - x1)
+	dy := float64(y2 - y1)
+	return math.Sqrt(dx*dx + dy*dy)
 }

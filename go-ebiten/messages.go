@@ -1,18 +1,21 @@
 package main
 
-type MessageQueue struct {
+type MessageLog struct {
 	text []string
 }
 
-func NewMessageQueue() *MessageQueue {
-	return &MessageQueue{}
+// -----------------------------------------------------------------------
+func NewMessageLog() *MessageLog {
+	return &MessageLog{}
 }
 
-func (mq *MessageQueue) Add(m string) {
+// -----------------------------------------------------------------------
+func (mq *MessageLog) Add(m string) {
 	mq.text = append(mq.text, m)
 }
 
-func (mq *MessageQueue) Tail(n int) []string {
+// -----------------------------------------------------------------------
+func (mq *MessageLog) Tail(n int) []string {
 	length := len(mq.text)
 	if length <= 5 {
 		return mq.text

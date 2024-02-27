@@ -17,7 +17,7 @@ func (dl *DungeonLayer) SetTile(x, y int, id int) {
 }
 
 // -----------------------------------------------------------------------
-func (dl *DungeonLayer) Tile(x, y int) int {
+func (dl *DungeonLayer) TileAt(x, y int) int {
 	return dl[x][y]
 }
 
