@@ -23,10 +23,7 @@ const (
 var assets embed.FS
 
 var sheet *Spritesheet
-
-type Pos struct {
-	x, y int
-}
+var font1 font.Face
 
 /*************************************************************************
  *                             GAME OBJECT                               *
@@ -34,25 +31,19 @@ type Pos struct {
 
 type Game struct {
 	keys     []ebiten.Key
-	font     font.Face
 	messages MessageQueue
-	player   Pos
-	dungeon  *DungeonLayer
+	player   Player
+	dungeon  DungeonLayer
 	monsters MonsterLayer
 }
 
 // -----------------------------------------------------------------------
 func NewGame() *Game {
-	font := loadFont("assets/fantasquesansmono-regular.otf", FontSize)
 
-	dungeon := NewDungeonLayer()
-	player_pos := dungeon.Generate()
+	g := &Game{}
 
-	g := &Game{
-		font:    font,
-		dungeon: dungeon,
-		player:  player_pos,
-	}
+	playerX, playerY := g.dungeon.Generate()
+	g.player.SetPos(playerX, playerY)
 
 	g.monsters[14][12] = NewMonster(0)
 	g.monsters[7][5] = NewMonster(1)
@@ -98,7 +89,7 @@ func (g *Game) InfoPanelString() []string {
 		"\n",
 		fmt.Sprintf("Gold:  4"),
 		fmt.Sprintf("Depth: 1"),
-		fmt.Sprintf("Pos:   %d,%d", g.player.x, g.player.y),
+		fmt.Sprintf("Pos:   %d,%d", g.player.X, g.player.Y),
 	}
 	return info
 }
@@ -123,16 +114,16 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	// draw player
-	DrawTile(screen, sheet.Tile(T_HERO), g.player.x, g.player.y)
+	DrawTile(screen, sheet.Tile(T_HERO), g.player.X, g.player.Y)
 
 	// draw the message queue panel
 	for i, m := range g.messages.Tail(5) {
-		text.Draw(screen, m, g.font, 0, MapMaxY*TileSize+FontSize+i*(FontSize+3), color.White)
+		text.Draw(screen, m, font1, 0, MapMaxY*TileSize+FontSize+i*(FontSize+3), color.White)
 	}
 
 	// draw the info panel
 	for i, s := range g.InfoPanelString() {
-		text.Draw(screen, s, g.font, MapMaxX*TileSize, FontSize+i*(FontSize+5), color.White)
+		text.Draw(screen, s, font1, MapMaxX*TileSize, FontSize+i*(FontSize+5), color.White)
 	}
 }
 
@@ -145,25 +136,25 @@ func (g *Game) Layout(outsideW, outsideH int) (screenWidth, screenHeight int) {
 func (g *Game) MovePlayer(dx, dy int) {
 
 	// check for monsters
-	m := g.monsters[g.player.x+dx][g.player.y+dy]
+	m := g.monsters[g.player.X+dx][g.player.Y+dy]
 	if m != nil {
 		g.messages.Add(fmt.Sprintf("You attack the %v.", m.Name))
 		return
 	}
 
 	// check dungeon tile
-	id := g.dungeon.Tile(g.player.x+dx, g.player.y+dy)
+	id := g.dungeon.Tile(g.player.X+dx, g.player.Y+dy)
 	switch id {
 	case 0,
 		T_WALL:
 		g.messages.Add("That way is blocked!")
 		return
 	case T_DOOR_CL:
-		g.dungeon.SetTile(g.player.x+dx, g.player.y+dy, T_DOOR_OP)
+		g.dungeon.SetTile(g.player.X+dx, g.player.Y+dy, T_DOOR_OP)
 		g.messages.Add("You open the door.")
 	default:
-		g.player.x += dx
-		g.player.y += dy
+		g.player.X += dx
+		g.player.Y += dy
 	}
 }
 
@@ -181,6 +172,7 @@ func DrawTile(screen *ebiten.Image, img *ebiten.Image, x int, y int) {
 // -----------------------------------------------------------------------
 func main() {
 	sheet = NewSpritesheet("colored_packed.png", TileSize)
+	font1 = loadFont("assets/fantasquesansmono-regular.otf", FontSize)
 	g := NewGame()
 	ebiten.SetWindowSize(ScreenMaxX, ScreenMaxY)
 	ebiten.SetWindowTitle("Rogue Redux")

@@ -7,12 +7,9 @@ const (
 	WEST
 )
 
-type DungeonLayer [MapMaxX][MapMaxY]int
+//TODO add Tile struct with fields for IsVisibile, Walkable, Visited, etc.
 
-// -----------------------------------------------------------------------
-func NewDungeonLayer() *DungeonLayer {
-	return &DungeonLayer{}
-}
+type DungeonLayer [MapMaxX][MapMaxY]int
 
 // -----------------------------------------------------------------------
 func (dl *DungeonLayer) SetTile(x, y int, id int) {
@@ -65,7 +62,7 @@ func (dl *DungeonLayer) CreatePath(x1, y1 int, dir int, length int) {
 }
 
 // -----------------------------------------------------------------------
-func (dl *DungeonLayer) Generate() Pos {
+func (dl *DungeonLayer) Generate() (int, int) {
 	dl.CreateRoom(3, 3, 8, 6)
 	dl.CreatePath(7, 9, SOUTH, 5)
 	dl.CreatePath(7, 13, EAST, 5)
@@ -73,7 +70,7 @@ func (dl *DungeonLayer) Generate() Pos {
 	dl.SetTile(7, 8, T_DOOR_OP)
 	dl.SetTile(12, 13, T_DOOR_OP)
 	dl.SetTile(10, 5, T_DOOR_CL)
-	return Pos{5, 5}
+	return 5, 5
 }
 
 func getDirectionCoords(dir int) (int, int) {
