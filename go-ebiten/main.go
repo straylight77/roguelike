@@ -119,7 +119,8 @@ func (g *Game) MovePlayer(dx, dy int) {
 
 	// check for monsters
 	if m := g.monsters.MonsterAt(destX, destY); m != nil {
-		g.messages.Add(fmt.Sprintf("You attack the %v.", m.Name))
+		msg := g.player.Attack(m)
+		g.messages.Add(msg)
 		return
 	}
 

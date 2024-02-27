@@ -24,6 +24,7 @@ type Monster struct {
 	TileID int
 	HP     int
 	AC     int
+	toHit  int
 }
 
 // -----------------------------------------------------------------------
@@ -48,12 +49,12 @@ func (m *Monster) Move(destX, destY int) {
  *                           MONSTER LAYER                               *
  *************************************************************************/
 
-type MonsterLayer []Monster
+type MonsterLayer []*Monster
 
 // -----------------------------------------------------------------------
 func (ml *MonsterLayer) Add(m *Monster, x, y int) {
 	m.X, m.Y = x, y
-	*ml = append(*ml, *m)
+	*ml = append(*ml, m)
 }
 
 // -----------------------------------------------------------------------
@@ -70,7 +71,7 @@ func (ml *MonsterLayer) Clear() {
 func (ml MonsterLayer) MonsterAt(x, y int) *Monster {
 	for _, m := range ml {
 		if m.X == x && m.Y == y {
-			return &m
+			return m
 		}
 	}
 	return nil
