@@ -12,14 +12,19 @@ var MonsterLib = []MonsterTemplate{
 	{"stirge", T_STIRGE, "1", 12},
 }
 
-// -----------------------------------------------------------------------
+/*************************************************************************
+ *                                MONSTER                                *
+ *************************************************************************/
+
 type Monster struct {
+	X, Y   int
 	Name   string
 	TileID int
 	HP     int
 	AC     int
 }
 
+// -----------------------------------------------------------------------
 func NewMonster(id int) *Monster {
 
 	mt := MonsterLib[id]
@@ -32,4 +37,39 @@ func NewMonster(id int) *Monster {
 }
 
 // -----------------------------------------------------------------------
-type MonsterLayer [MapMaxX][MapMaxY]*Monster
+func (m *Monster) Move(destX, destY int) {
+	m.X = destX
+	m.Y = destY
+}
+
+/*************************************************************************
+ *                           MONSTER LAYER                               *
+ *************************************************************************/
+
+type MonsterLayer []Monster
+
+// -----------------------------------------------------------------------
+func (ml *MonsterLayer) Add(m *Monster, x, y int) {
+	m.X, m.Y = x, y
+	*ml = append(*ml, *m)
+}
+
+// -----------------------------------------------------------------------
+func (ml *MonsterLayer) Remove(idx int) {
+	*ml = append((*ml)[:idx], (*ml)[idx+1:]...)
+}
+
+// -----------------------------------------------------------------------
+func (ml *MonsterLayer) Clear() {
+	*ml = nil
+}
+
+// -----------------------------------------------------------------------
+func (ml MonsterLayer) MonsterAt(x, y int) *Monster {
+	for _, m := range ml {
+		if m.X == x && m.Y == y {
+			return &m
+		}
+	}
+	return nil
+}

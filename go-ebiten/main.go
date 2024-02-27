@@ -45,8 +45,8 @@ func NewGame() *Game {
 	playerX, playerY := g.dungeon.Generate()
 	g.player.SetPos(playerX, playerY)
 
-	g.monsters[14][12] = NewMonster(0)
-	g.monsters[7][5] = NewMonster(1)
+	g.monsters.Add(NewMonster(0), 14, 12)
+	g.monsters.Add(NewMonster(1), 7, 5)
 
 	//g.messages.Add("---------1---------2---------3---------4---------5---------6---------7---------8---------9")
 	g.messages.Add("Hello Rodney, welcome to the Dungeons of Doom!")
@@ -105,12 +105,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	// draw monsters
-	for x, col := range g.monsters {
-		for y, m := range col {
-			if m != nil {
-				DrawTile(screen, sheet.Tile(m.TileID), x, y)
-			}
-		}
+	for _, m := range g.monsters {
+		DrawTile(screen, sheet.Tile(m.TileID), m.X, m.Y)
 	}
 
 	// draw player
@@ -135,15 +131,16 @@ func (g *Game) Layout(outsideW, outsideH int) (screenWidth, screenHeight int) {
 // -----------------------------------------------------------------------
 func (g *Game) MovePlayer(dx, dy int) {
 
+	destX, destY := g.player.X+dx, g.player.Y+dy
+
 	// check for monsters
-	m := g.monsters[g.player.X+dx][g.player.Y+dy]
-	if m != nil {
+	if m := g.monsters.MonsterAt(destX, destY); m != nil {
 		g.messages.Add(fmt.Sprintf("You attack the %v.", m.Name))
 		return
 	}
 
 	// check dungeon tile
-	id := g.dungeon.Tile(g.player.X+dx, g.player.Y+dy)
+	id := g.dungeon.Tile(destX, destY)
 	switch id {
 	case 0,
 		T_WALL:
