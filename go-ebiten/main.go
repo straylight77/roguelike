@@ -14,7 +14,7 @@ import (
 
 const (
 	ScreenMaxX, ScreenMaxY = 1024, 768
-	MapMaxX, MapMaxY       = 45, 40
+	MapMaxX, MapMaxY       = 50, 40
 	FontSize               = 16
 	TileSize               = 16
 )
@@ -37,15 +37,18 @@ type Game struct {
 	font     font.Face
 	dungeon  *DungeonLevel
 	player   Pos
+	monsters [MapMaxX][MapMaxY]*Monster
 	messages MessageQueue
 }
 
 // -----------------------------------------------------------------------
 func NewGame() *Game {
+	font := loadFont("assets/fantasquesansmono-regular.otf", FontSize)
+
 	dungeon := NewDungeonLevel()
 	player_pos := dungeon.Generate()
 
-	font := loadFont("assets/fantasquesansmono-regular.otf", FontSize)
+	//TODO: refactor dungeon, monsters, player into GameState object
 
 	mq := MessageQueue{}
 	//mq.Add("---------1---------2---------3---------4---------5---------6---------7---------8---------9")
@@ -56,7 +59,12 @@ func NewGame() *Game {
 		player:   player_pos,
 		font:     font,
 		messages: mq,
+		monsters: [MapMaxX][MapMaxY]*Monster{},
 	}
+
+	g.monsters[14][12] = NewMonster(0)
+	g.monsters[7][5] = NewMonster(1)
+
 	return g
 }
 
@@ -70,13 +78,13 @@ func (g *Game) Update() error {
 			ebiten.KeyQ:
 			return ebiten.Termination
 		case ebiten.KeyLeft:
-			MovePlayer(g, -1, 0)
+			g.MovePlayer(-1, 0)
 		case ebiten.KeyRight:
-			MovePlayer(g, 1, 0)
+			g.MovePlayer(1, 0)
 		case ebiten.KeyUp:
-			MovePlayer(g, 0, -1)
+			g.MovePlayer(0, -1)
 		case ebiten.KeyDown:
-			MovePlayer(g, 0, 1)
+			g.MovePlayer(0, 1)
 		default:
 			g.messages.Add(fmt.Sprintf("I don't know that command (%v)", p))
 		}
@@ -93,9 +101,9 @@ func (g *Game) InfoPanelString() []string {
 		fmt.Sprintf("HP:    14 / 20"),
 		fmt.Sprintf("Exp:    2 / 14"),
 		"\n",
-		fmt.Sprintf("Pos:   %d,%d", g.player.x, g.player.y),
-		fmt.Sprintf("Depth: 1"),
 		fmt.Sprintf("Gold:  4"),
+		fmt.Sprintf("Depth: 1"),
+		fmt.Sprintf("Pos:   %d,%d", g.player.x, g.player.y),
 	}
 	return info
 }
@@ -107,6 +115,15 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	for x, col := range g.dungeon {
 		for y, id := range col {
 			DrawTile(screen, sheet.Tile(id), x, y)
+		}
+	}
+
+	// draw monsters
+	for x, col := range g.monsters {
+		for y, m := range col {
+			if m != nil {
+				DrawTile(screen, sheet.Tile(m.TileID), x, y)
+			}
 		}
 	}
 
@@ -122,7 +139,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	for i, s := range g.InfoPanelString() {
 		text.Draw(screen, s, g.font, MapMaxX*TileSize, FontSize+i*(FontSize+5), color.White)
 	}
-
 }
 
 // -----------------------------------------------------------------------
@@ -131,7 +147,16 @@ func (g *Game) Layout(outsideW, outsideH int) (screenWidth, screenHeight int) {
 }
 
 // -----------------------------------------------------------------------
-func MovePlayer(g *Game, dx, dy int) {
+func (g *Game) MovePlayer(dx, dy int) {
+
+	// check for monsters
+	m := g.monsters[g.player.x+dx][g.player.y+dy]
+	if m != nil {
+		g.messages.Add(fmt.Sprintf("You attack the %v.", m.Name))
+		return
+	}
+
+	// check dungeon tile
 	id := g.dungeon.Tile(g.player.x+dx, g.player.y+dy)
 	switch id {
 	case 0,
